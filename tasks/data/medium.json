@@ -1,0 +1,57 @@
+[
+  {
+    "task_id": "medium_001",
+    "difficulty": "medium",
+    "content": "This product cures all diseases naturally. Doctors don't want you to know.",
+    "platform": "marketplace",
+    "region": "EU",
+    "user_history": {"prior_violations": 1, "account_age_days": 45},
+    "ground_truth": "remove",
+    "context_keywords": ["health misinformation", "EU", "marketplace"],
+    "explanation": "Health misinformation is prohibited on EU marketplace under DSA regulations."
+  },
+  {
+    "task_id": "medium_002",
+    "difficulty": "medium",
+    "content": "Join our group to discuss investment strategies and get 300% returns guaranteed.",
+    "platform": "messaging",
+    "region": "US",
+    "user_history": {"prior_violations": 0, "account_age_days": 60},
+    "ground_truth": "remove",
+    "context_keywords": ["financial fraud", "US", "messaging", "guaranteed returns"],
+    "explanation": "Guaranteed investment returns are prohibited financial fraud under US regulations, especially in private messaging recruitment."
+  },
+  {
+    "task_id": "medium_003",
+    "difficulty": "medium",
+    "content": "Traditional herbal remedy passed down for generations. Available in my shop.",
+    "platform": "marketplace",
+    "region": "APAC",
+    "user_history": {"prior_violations": 0, "account_age_days": 900},
+    "ground_truth": "allow",
+    "context_keywords": ["APAC", "marketplace", "traditional medicine"],
+    "explanation": "Traditional herbal remedies are culturally accepted and legally sold in APAC marketplaces without medical claims."
+  },
+  {
+    "task_id": "medium_004",
+    "difficulty": "medium",
+    "content": "Selling replica designer handbags, same quality as the original brands.",
+    "platform": "marketplace",
+    "region": "US",
+    "user_history": {"prior_violations": 0, "account_age_days": 120},
+    "ground_truth": "remove",
+    "context_keywords": ["counterfeit", "US", "marketplace", "intellectual property"],
+    "explanation": "Replica/counterfeit goods listings violate marketplace IP policies and US law regardless of stated quality."
+  },
+  {
+    "task_id": "medium_005",
+    "difficulty": "medium",
+    "content": "Our community group is organizing a data privacy awareness workshop next Saturday.",
+    "platform": "social_media",
+    "region": "EU",
+    "user_history": {"prior_violations": 0, "account_age_days": 500},
+    "ground_truth": "allow",
+    "context_keywords": ["EU", "social_media", "privacy", "community event"],
+    "explanation": "Legitimate community event post; data privacy advocacy is especially valued in EU context under GDPR awareness culture."
+  }
+]

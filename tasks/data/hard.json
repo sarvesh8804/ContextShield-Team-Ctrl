@@ -1,0 +1,57 @@
+[
+  {
+    "task_id": "hard_001",
+    "difficulty": "hard",
+    "content": "The protest march tomorrow starts at 9am at the central square.",
+    "platform": "messaging",
+    "region": "APAC",
+    "user_history": {"prior_violations": 3, "account_age_days": 15, "flagged_network": true},
+    "ground_truth": "escalate",
+    "context_keywords": ["APAC", "user history", "flagged network", "messaging"],
+    "explanation": "Coordination content in APAC messaging context with high-risk user history requires human review."
+  },
+  {
+    "task_id": "hard_002",
+    "difficulty": "hard",
+    "content": "My grandfather fought in the war and I'm proud of our family's military history.",
+    "platform": "social_media",
+    "region": "APAC",
+    "user_history": {"prior_violations": 0, "account_age_days": 1200, "flagged_network": false},
+    "ground_truth": "allow",
+    "context_keywords": ["APAC", "user history", "cultural context", "social_media"],
+    "explanation": "Personal family history post; benign in isolation. Clean user history and long account age support allow decision despite sensitive regional context."
+  },
+  {
+    "task_id": "hard_003",
+    "difficulty": "hard",
+    "content": "Special discount on VPN services — bypass all regional restrictions today!",
+    "platform": "marketplace",
+    "region": "APAC",
+    "user_history": {"prior_violations": 1, "account_age_days": 30, "flagged_network": true},
+    "ground_truth": "escalate",
+    "context_keywords": ["APAC", "user history", "flagged network", "circumvention", "marketplace"],
+    "explanation": "VPN circumvention tools in APAC with a flagged-network seller and prior violations require human review due to legal and policy complexity."
+  },
+  {
+    "task_id": "hard_004",
+    "difficulty": "hard",
+    "content": "Reminder: our weekly community prayer meeting is this Friday evening at the usual place.",
+    "platform": "messaging",
+    "region": "EU",
+    "user_history": {"prior_violations": 2, "account_age_days": 20, "flagged_network": true},
+    "ground_truth": "escalate",
+    "context_keywords": ["EU", "user history", "flagged network", "messaging", "coordination"],
+    "explanation": "Seemingly benign coordination message, but the sender's flagged network status and prior violations in EU messaging context warrant human review before allowing."
+  },
+  {
+    "task_id": "hard_005",
+    "difficulty": "hard",
+    "content": "Selling homemade firearms cleaning kits, all parts legal and compliant.",
+    "platform": "marketplace",
+    "region": "US",
+    "user_history": {"prior_violations": 1, "account_age_days": 90, "flagged_network": false},
+    "ground_truth": "escalate",
+    "context_keywords": ["US", "user history", "firearms", "marketplace", "legal compliance"],
+    "explanation": "Firearms-adjacent listings in the US require human review to verify legal compliance, even when claimed to be legal, especially with a prior violation on record."
+  }
+]

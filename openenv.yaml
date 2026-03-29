@@ -1,0 +1,27 @@
+name: context-shield
+version: "1.0.0"
+description: >
+  Context-aware content moderation simulation environment.
+  Agents act as content moderators across platforms and regions.
+
+observation_space:
+  type: object
+  properties:
+    content: {type: string}
+    platform: {type: string, enum: [social_media, marketplace, messaging]}
+    region: {type: string, enum: [US, EU, APAC]}
+    user_history: {type: object}
+    task_id: {type: string}
+    difficulty: {type: string, enum: [easy, medium, hard]}
+    step_number: {type: integer}
+
+action_space:
+  type: object
+  properties:
+    decision: {type: string, enum: [allow, remove, escalate]}
+    confidence: {type: number, minimum: 0.0, maximum: 1.0}
+    reasoning: {type: string}
+
+reward_range: [0.0, 1.0]
+episode_steps: 1
+tasks: [easy, medium, hard]
