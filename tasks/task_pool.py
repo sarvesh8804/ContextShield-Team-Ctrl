@@ -34,11 +34,19 @@ class TaskPool:
         """Return the full list of tasks."""
         return self._tasks
 
-    def sample(self, difficulty: Optional[str] = None) -> Task:
-        """Return a random task, optionally filtered by difficulty."""
+    def sample(self, difficulty: Optional[str] = None, seed: Optional[int] = None) -> Task:
+        """Return a random task, optionally filtered by difficulty.
+
+        Args:
+            difficulty: filter to a specific difficulty level, or None for any.
+            seed: optional RNG seed for reproducible sampling.
+        """
         pool = self._tasks
         if difficulty is not None:
             pool = [t for t in pool if t.difficulty == difficulty]
         if not pool:
             raise ValueError(f"No tasks available for difficulty: {difficulty}")
+        if seed is not None:
+            rng = random.Random(seed)
+            return rng.choice(pool)
         return random.choice(pool)

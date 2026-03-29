@@ -53,5 +53,38 @@
     "ground_truth": "escalate",
     "context_keywords": ["US", "user history", "firearms", "marketplace", "legal compliance"],
     "explanation": "Firearms-adjacent listings in the US require human review to verify legal compliance, even when claimed to be legal, especially with a prior violation on record."
+  },
+  {
+    "task_id": "hard_006",
+    "difficulty": "hard",
+    "content": "I've been documenting the side effects of this medication for 6 months. Here's my data.",
+    "platform": "social_media",
+    "region": "EU",
+    "user_history": {"prior_violations": 0, "account_age_days": 2100, "flagged_network": false, "verified_professional": false},
+    "ground_truth": "allow",
+    "context_keywords": ["EU", "user history", "health", "social_media", "patient experience"],
+    "explanation": "Personal health documentation by a long-standing, clean-history user in the EU. Patient experience sharing is protected under EU health information norms. No professional claim is made, so no misinformation risk. Allow."
+  },
+  {
+    "task_id": "hard_007",
+    "difficulty": "hard",
+    "content": "Flash sale: 90% off luxury watches. Only 3 left. Buy now before they're gone!",
+    "platform": "marketplace",
+    "region": "US",
+    "user_history": {"prior_violations": 0, "account_age_days": 3, "flagged_network": false},
+    "ground_truth": "escalate",
+    "context_keywords": ["US", "user history", "new account", "marketplace", "urgency tactics"],
+    "explanation": "Urgency-based luxury goods listing from a 3-day-old account with no violations yet. The combination of extreme discount, scarcity pressure, and brand-new account is a strong counterfeit/fraud signal requiring human review — even though no explicit policy violation is present in the text."
+  },
+  {
+    "task_id": "hard_008",
+    "difficulty": "hard",
+    "content": "Our group helps people find safe routes across the border. DM for details.",
+    "platform": "messaging",
+    "region": "US",
+    "user_history": {"prior_violations": 0, "account_age_days": 45, "flagged_network": false},
+    "ground_truth": "escalate",
+    "context_keywords": ["US", "user history", "messaging", "implicit intent", "border crossing"],
+    "explanation": "Ambiguous content that could represent humanitarian aid (legal) or human smuggling facilitation (illegal). The implicit intent, private messaging channel, and border-crossing framing require human review regardless of clean user history. This is a classic multi-signal conflict: safe text + high-risk implicit meaning."
   }
 ]

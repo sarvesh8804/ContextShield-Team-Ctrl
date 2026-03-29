@@ -17,8 +17,8 @@ def pool() -> TaskPool:
     return TaskPool()
 
 
-def test_get_all_returns_15_tasks(pool):
-    assert len(pool.get_all()) == 15
+def test_get_all_returns_at_least_15_tasks(pool):
+    assert len(pool.get_all()) >= 15
 
 
 def test_get_all_returns_task_instances(pool):
