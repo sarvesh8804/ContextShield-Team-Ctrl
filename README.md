@@ -1,3 +1,16 @@
+---
+title: ContextShield
+emoji: 🛡️
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+pinned: false
+short_description: "OpenEnv content moderation — ContextShield HTTP API (Docker)."
+tags:
+  - openenv
+---
+
 # ContextShield
 
 ContextShield is a context-aware trust and safety simulation environment. It models **content moderation** across platforms and regions: the agent chooses **allow**, **remove**, or **escalate** with reasoning, and receives **shaped rewards** (grader score, context-signal partial credit, calibration, penalties).
@@ -124,7 +137,8 @@ The Space runs the **OpenEnv HTTP server** (same as the Dockerfile `CMD`), not `
 ### 1. Prepare the repo
 
 - Confirm locally: `docker build -t context-shield .` and `docker run -p 7860:7860 context-shield`, then `openenv validate http://127.0.0.1:7860`.
-- This repo already includes `space.yaml` (`sdk: docker`, `tags: openenv`) and a root `Dockerfile`.
+- **Hugging Face reads Space settings from the YAML block at the top of this `README.md`** (see [Spaces config](https://huggingface.co/docs/hub/spaces-config-reference)). A duplicate `space.yaml` exists for tooling only; HF does not use it as the primary config.
+- Root `Dockerfile` builds the server image.
 
 ### 2. Create the Space on Hugging Face
 
@@ -179,7 +193,7 @@ python -m pytest tests/ -q
 ├── pyproject.toml       # Package + `server` console script
 ├── uv.lock              # Lockfile for `openenv validate`
 ├── Dockerfile           # Runs the HTTP server for Spaces
-└── space.yaml           # HF Space metadata (tag: openenv)
+└── space.yaml           # Optional duplicate of README frontmatter (OpenEnv tooling)
 ```
 
 ---
