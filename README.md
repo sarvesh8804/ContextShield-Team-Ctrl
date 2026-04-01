@@ -1,12 +1,12 @@
 ---
-title: ContextShield
-emoji: 🛡️
-colorFrom: blue
-colorTo: green
+title: TeamCtrl
+emoji: 🤖
+colorFrom: indigo
+colorTo: purple
 sdk: docker
 app_port: 7860
 pinned: false
-short_description: "OpenEnv content moderation — ContextShield HTTP API (Docker)."
+short_description: AI-powered team control system
 tags:
   - openenv
 ---
