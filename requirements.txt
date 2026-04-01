@@ -2,3 +2,4 @@ pydantic>=2.0
 openai
 hypothesis==6.112.0
 pytest
+openenv-core>=0.2.3
