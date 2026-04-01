@@ -5,6 +5,7 @@ not just string length — making it a true measure of moderation quality.
 """
 import sys
 import os
+import re
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -31,19 +32,25 @@ def _count_context_signals(reasoning: str, task: Task) -> int:
     """
     lowered = reasoning.lower()
     score = 0
+    
+    def contains_any(terms, text):
+        for t in terms:
+            if re.search(r'\b' + re.escape(t) + r'\b', text):
+                return True
+        return False
 
     # Platform awareness: either the task's platform name or generic platform signals
     platform_terms = _PLATFORM_SIGNALS + [task.platform.replace("_", " "), task.platform]
-    if any(t in lowered for t in platform_terms):
+    if contains_any(platform_terms, lowered):
         score += 1
 
     # Region awareness
     region_terms = _REGION_SIGNALS + [task.region.lower()]
-    if any(t in lowered for t in region_terms):
+    if contains_any(region_terms, lowered):
         score += 1
 
     # User history awareness
-    if any(t in lowered for t in _USER_HISTORY_SIGNALS):
+    if contains_any(_USER_HISTORY_SIGNALS, lowered):
         score += 1
 
     return score

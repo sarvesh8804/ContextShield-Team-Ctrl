@@ -26,7 +26,19 @@ class ContextShieldOpenEnv(Environment[Action, Observation, ContextShieldState])
 
     def __init__(self, difficulty: str | None = None, seed: int | None = None) -> None:
         super().__init__()
-        self._inner = ContextShieldEnv(difficulty=difficulty, seed=seed)
+        self.difficulty = difficulty
+        self.seed = seed
+        self._episodes: dict[str, ContextShieldEnv] = {}
+        self._last_env: ContextShieldEnv | None = None
+
+    def _get_env(self, episode_id: str | None) -> ContextShieldEnv:
+        eid = episode_id or "default"
+        if eid not in self._episodes:
+            self._episodes[eid] = ContextShieldEnv(difficulty=self.difficulty, seed=self.seed)
+            self._episodes[eid].reset()
+        env = self._episodes[eid]
+        self._last_env = env
+        return env
 
     def reset(
         self,
@@ -34,7 +46,11 @@ class ContextShieldOpenEnv(Environment[Action, Observation, ContextShieldState])
         episode_id: Optional[str] = None,
         **kwargs: Any,
     ) -> Observation:
-        return self._inner.reset(seed=seed)
+        eid = episode_id or "default"
+        env = ContextShieldEnv(difficulty=self.difficulty, seed=seed)
+        self._episodes[eid] = env
+        self._last_env = env
+        return env.reset(seed=seed)
 
     def step(
         self,
@@ -42,12 +58,17 @@ class ContextShieldOpenEnv(Environment[Action, Observation, ContextShieldState])
         timeout_s: Optional[float] = None,
         **kwargs: Any,
     ) -> Observation:
-        obs, _reward, _done, _info = self._inner.step(action)
+        eid = kwargs.get("episode_id", "default")
+        env = self._get_env(eid)
+        obs, _reward, _done, _info = env.step(action)
         return obs
 
     @property
     def state(self) -> ContextShieldState:
-        snap = self._inner.state()
+        env = self._last_env
+        if not env:
+            env = self._get_env("default")
+        snap = env.state()
         return ContextShieldState(
             episode_id=snap.episode_id,
             step_count=snap.step_number,
