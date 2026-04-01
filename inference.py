@@ -68,6 +68,7 @@ def run_single_task(client: OpenAI, model_name: str, difficulty: str, seed: int)
     rewards = []
     steps_taken = 0
     score = 0.0
+    success = False
     
     try:
         user_prompt = build_user_prompt(obs)
@@ -100,7 +101,11 @@ def run_single_task(client: OpenAI, model_name: str, difficulty: str, seed: int)
 def main():
     api_base = os.environ.get("API_BASE_URL", "https://api.openai.com/v1")
     model_name = os.environ.get("MODEL_NAME", "gpt-4o-mini")
-    api_key = os.environ.get("OPENAI_API_KEY", "sk-mock")
+    api_key = (
+        os.environ.get("HF_TOKEN")
+        or os.environ.get("OPENAI_API_KEY")
+        or "sk-mock"
+    )
     
     client = OpenAI(base_url=api_base, api_key=api_key)
     seed = int(os.environ.get("SEED", "42"))

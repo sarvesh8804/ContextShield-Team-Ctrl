@@ -1,8 +1,10 @@
 from typing import Literal
-from pydantic import BaseModel, Field
+
+from openenv.core.env_server.types import Action as BaseAction
+from pydantic import Field
 
 
-class Action(BaseModel):
+class Action(BaseAction):
     decision: Literal["allow", "remove", "escalate"]
     confidence: float = Field(ge=0.0, le=1.0)
     reasoning: str

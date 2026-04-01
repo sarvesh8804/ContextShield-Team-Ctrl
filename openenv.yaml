@@ -1,6 +1,6 @@
 name: context-shield
 version: "1.0.0"
-entrypoint: env.environment:ContextShieldEnv
+entrypoint: env.openenv_adapter:ContextShieldOpenEnv
 description: >
   Context-aware content moderation simulation environment.
   Agents act as content moderators across platforms and regions.

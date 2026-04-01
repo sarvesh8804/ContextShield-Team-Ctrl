@@ -1,0 +1,19 @@
+# Git and IDE
+.git
+.gitignore
+.cursor
+
+# Python cache / tests (not needed in image)
+__pycache__
+*.py[cod]
+*$py.class
+.pytest_cache
+.hypothesis
+*.egg-info
+.venv
+venv
+env
+
+# Local tooling
+*.log
+.DS_Store

@@ -1,7 +1,7 @@
-from pydantic import BaseModel
+from openenv.core.env_server.types import Observation as BaseObservation
 
 
-class Observation(BaseModel):
+class Observation(BaseObservation):
     content: str
     platform: str
     region: str
