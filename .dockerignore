@@ -11,8 +11,9 @@ __pycache__
 .hypothesis
 *.egg-info
 .venv
-venv
-env
+venv/
+
+# Note: do not ignore `env/` — it is the application package (ContextShieldEnv, adapter).
 
 # Local tooling
 *.log
