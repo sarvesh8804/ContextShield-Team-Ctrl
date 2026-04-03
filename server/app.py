@@ -32,11 +32,11 @@ def root() -> str:
 <head>
   <meta charset=\"UTF-8\" />
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
-  <title>TeamCtrl</title>
+  <title>ContextShield</title>
 </head>
 <body style=\"font-family: Arial, sans-serif; margin: 2rem; color: #222;\">
-  <h1 style=\"margin-bottom: .25rem;\">TeamCtrl</h1>
-  <p style=\"margin-top: 0; margin-bottom: 1.5rem; font-size: 1.1rem;\">AI-powered repo analysis and control system</p>
+  <h1 style=\"margin-bottom: .25rem;\">ContextShield</h1>
+  <p style=\"margin-top: 0; margin-bottom: 1.5rem; font-size: 1.1rem;\">OpenEnv trust &amp; safety: context-aware content moderation (allow / remove / escalate).</p>
   <a href=\"/docs\" style=\"display: inline-block; padding: .65rem 1.1rem; background: #0366d6; color: white; text-decoration: none; border-radius: 5px;\">Open API docs</a>
 </body>
 </html>"""

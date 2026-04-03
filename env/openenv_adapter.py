@@ -16,6 +16,7 @@ from models.observation import Observation
 
 class ContextShieldState(BaseState):
     current_task_id: str | None = None
+    items_in_episode: int = 0
     done: bool = False
     history: list = Field(default_factory=list)
     total_score: float = 0.0
@@ -34,7 +35,10 @@ class ContextShieldOpenEnv(Environment[Action, Observation, ContextShieldState])
     def _get_env(self, episode_id: str | None) -> ContextShieldEnv:
         eid = episode_id or "default"
         if eid not in self._episodes:
-            self._episodes[eid] = ContextShieldEnv(difficulty=self.difficulty, seed=self.seed)
+            self._episodes[eid] = ContextShieldEnv(
+                difficulty=self.difficulty,
+                seed=self.seed,
+            )
             self._episodes[eid].reset()
         env = self._episodes[eid]
         self._last_env = env
@@ -73,6 +77,7 @@ class ContextShieldOpenEnv(Environment[Action, Observation, ContextShieldState])
             episode_id=snap.episode_id,
             step_count=snap.step_number,
             current_task_id=snap.current_task_id,
+            items_in_episode=snap.items_in_episode,
             done=snap.done,
             history=list(snap.history),
             total_score=snap.total_score,

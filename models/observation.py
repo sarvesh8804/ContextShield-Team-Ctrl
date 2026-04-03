@@ -9,3 +9,4 @@ class Observation(BaseObservation):
     task_id: str
     difficulty: str
     step_number: int
+    items_in_episode: int

@@ -83,6 +83,7 @@ def test_observation_fields_accessible():
         task_id="easy_001",
         difficulty="easy",
         step_number=0,
+        items_in_episode=4,
     )
     assert obs.content == "Test content"
     assert obs.platform == "social_media"
@@ -123,6 +124,7 @@ def test_episode_state_fields_accessible():
         episode_id="abc-123",
         current_task_id="easy_001",
         step_number=1,
+        items_in_episode=4,
         done=False,
         history=[],
         total_score=0.0,
@@ -130,6 +132,7 @@ def test_episode_state_fields_accessible():
     assert state.episode_id == "abc-123"
     assert state.current_task_id == "easy_001"
     assert state.step_number == 1
+    assert state.items_in_episode == 4
     assert state.done is False
     assert state.history == []
     assert state.total_score == 0.0
@@ -141,6 +144,7 @@ def test_episode_state_current_task_id_nullable():
         episode_id="abc-123",
         current_task_id=None,
         step_number=0,
+        items_in_episode=4,
         done=False,
         history=[],
         total_score=0.0,

@@ -10,13 +10,15 @@ class StateManager:
         self.episode_id: str = ""
         self.current_task_id: str | None = None
         self.step_number: int = 0
+        self.items_in_episode: int = 0
         self.done: bool = False
         self.history: list[dict] = []
         self.total_score: float = 0.0
 
-    def reset(self, task: Task) -> None:
+    def reset(self, tasks: list[Task]) -> None:
         self.episode_id = str(uuid.uuid4())
-        self.current_task_id = task.task_id
+        self.items_in_episode = len(tasks)
+        self.current_task_id = tasks[0].task_id if tasks else None
         self.step_number = 0
         self.done = False
         self.history = []
@@ -32,6 +34,7 @@ class StateManager:
             episode_id=self.episode_id,
             current_task_id=self.current_task_id,
             step_number=self.step_number,
+            items_in_episode=self.items_in_episode,
             done=self.done,
             history=list(self.history),
             total_score=self.total_score,

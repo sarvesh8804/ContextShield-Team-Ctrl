@@ -49,3 +49,15 @@ def test_sample_hard_returns_hard_task(pool):
 def test_sample_nonexistent_difficulty_raises_value_error(pool):
     with pytest.raises(ValueError, match="nonexistent"):
         pool.sample("nonexistent")
+
+
+def test_sample_episode_length_and_difficulty(pool):
+    ep = pool.sample_episode("easy", seed=123, length=4)
+    assert len(ep) == 4
+    assert all(t.difficulty == "easy" for t in ep)
+
+
+def test_sample_episode_without_replacement_when_possible(pool):
+    ep = pool.sample_episode("easy", seed=0, length=5)
+    ids = [t.task_id for t in ep]
+    assert len(ids) == len(set(ids)), "easy pool has 5 tasks; expect distinct IDs"

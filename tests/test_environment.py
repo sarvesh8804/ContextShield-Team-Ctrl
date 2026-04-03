@@ -31,28 +31,27 @@ valid_action_strategy = st.builds(
 )
 
 
-def make_action(**kwargs) -> Action:
+def make_action(**kwargs):
+    from models.action import Action as A
+
     defaults = dict(decision="allow", confidence=0.8, reasoning="This content looks fine.")
     defaults.update(kwargs)
-    return Action(**defaults)
+    return A(**defaults)
 
 
 # ---------------------------------------------------------------------------
 # Property 7: Reset clears state
-# Validates: Requirements 1.4
 # ---------------------------------------------------------------------------
+
 
 @given(action=valid_action_strategy)
 @settings(max_examples=50)
 def test_reset_clears_state(action):
-    """**Validates: Requirements 1.4**
-    After running a step and calling reset(), step_number == 0 and history == [].
-    """
-    env = ContextShieldEnv(seed=42)
+    """After a partial episode and reset(), step_number == 0 and history == []."""
+    env = ContextShieldEnv(seed=42, episode_length=4)
     env.reset()
     env.step(action)
 
-    # Now reset and verify clean state
     env.reset()
     state = env.state()
     assert state.step_number == 0
@@ -60,34 +59,37 @@ def test_reset_clears_state(action):
 
 
 # ---------------------------------------------------------------------------
-# Property 8: Step after done raises EpisodeTerminatedError
-# Validates: Requirements 1.5
+# Property 8: Step after done raises
 # ---------------------------------------------------------------------------
+
 
 @given(action=valid_action_strategy)
 @settings(max_examples=50)
 def test_step_after_done_raises(action):
-    """**Validates: Requirements 1.5**
-    After episode termination, calling step() again raises EpisodeTerminatedError.
-    """
-    env = ContextShieldEnv(seed=42)
+    """After full episode, calling step() again raises EpisodeTerminatedError."""
+    env = ContextShieldEnv(seed=42, episode_length=2)
     env.reset()
-    env.step(action)  # completes the episode (done=True)
+    env.step(action)
+    env.step(action)
 
     with pytest.raises(EpisodeTerminatedError):
         env.step(action)
 
 
 # ---------------------------------------------------------------------------
-# Task 8.2: Unit tests for step() return structure
-# Requirements: 1.2
+# step() return structure
 # ---------------------------------------------------------------------------
+
 
 def test_step_returns_correct_types():
     """step() returns (Observation, Reward, bool, dict) with correct types."""
-    env = ContextShieldEnv(seed=0)
+    env = ContextShieldEnv(seed=0, episode_length=2)
     env.reset()
-    action = make_action(decision="remove", confidence=0.9, reasoning="Clear spam content that violates policy.")
+    action = make_action(
+        decision="remove",
+        confidence=0.9,
+        reasoning="Clear spam content that violates policy.",
+    )
     result = env.step(action)
 
     obs, reward, done, info = result
@@ -97,34 +99,40 @@ def test_step_returns_correct_types():
     assert isinstance(info, dict)
 
 
-def test_step_done_is_true():
-    """done flag is always True after step() (single-turn episodes)."""
-    env = ContextShieldEnv(seed=1)
+def test_multi_step_done_false_then_true():
+    """With episode_length=2, first step done=False, second done=True."""
+    env = ContextShieldEnv(seed=1, episode_length=2)
     env.reset()
-    _, _, done, _ = env.step(make_action())
-    assert done is True
+    _, _, done1, _ = env.step(make_action())
+    assert done1 is False
+    _, _, done2, _ = env.step(make_action())
+    assert done2 is True
 
 
 def test_step_info_has_required_keys():
     """info dict contains 'task_id' and 'ground_truth' keys."""
-    env = ContextShieldEnv(seed=2)
+    env = ContextShieldEnv(seed=2, episode_length=1)
     env.reset()
     _, _, _, info = env.step(make_action())
     assert "task_id" in info
     assert "ground_truth" in info
 
 
-def test_step_observation_step_number_is_1():
-    """Terminal observation has step_number == 1."""
-    env = ContextShieldEnv(seed=3)
-    env.reset()
-    obs, _, _, _ = env.step(make_action())
-    assert obs.step_number == 1
-
-
 def test_reset_returns_observation_with_step_number_0():
     """reset() returns an Observation with step_number == 0."""
-    env = ContextShieldEnv(seed=4)
+    env = ContextShieldEnv(seed=4, episode_length=4)
     obs = env.reset()
     assert isinstance(obs, Observation)
     assert obs.step_number == 0
+    assert obs.items_in_episode == 4
+
+
+def test_episode_length_4_takes_four_steps():
+    """episode_length=4 requires four step() calls before done."""
+    env = ContextShieldEnv(seed=5, episode_length=4)
+    env.reset()
+    for i in range(3):
+        _, _, done, _ = env.step(make_action())
+        assert done is False, f"step {i+1} should not be terminal"
+    _, _, done, _ = env.step(make_action())
+    assert done is True

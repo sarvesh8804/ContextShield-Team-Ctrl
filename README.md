@@ -1,12 +1,12 @@
 ---
-title: TeamCtrl
-emoji: 🤖
-colorFrom: indigo
-colorTo: purple
+title: ContextShield
+emoji: 🛡️
+colorFrom: blue
+colorTo: green
 sdk: docker
 app_port: 7860
 pinned: false
-short_description: AI-powered team control system
+short_description: OpenEnv trust & safety — context-aware content moderation simulation
 tags:
   - openenv
 ---
@@ -29,7 +29,13 @@ The project follows the **OpenEnv** layout: typed **Action** / **Observation** (
 | `confidence` | number | \(0.0\)–\(1.0\), aligned with expected grader score. |
 | `reasoning` | string | Must reference platform, region, and/or user-history signals for full partial credit. |
 
-**Observation:** Moderation case fields (`content`, `platform`, `region`, `user_history`, `task_id`, `difficulty`, `step_number`) plus OpenEnv fields `reward`, `done`, and `metadata` where applicable.
+**Observation:** Moderation case fields (`content`, `platform`, `region`, `user_history`, `task_id`, `difficulty`, `step_number`, `items_in_episode`) plus OpenEnv fields `reward`, `done`, and `metadata` where applicable.
+
+---
+
+## Multi-step episodes
+
+Each **episode** queues several independent moderation cases (default **4** items). After `reset()`, the agent moderates items one `step()` at a time. Intermediate steps return `done=False` and the **next** case; the last step returns `done=True`. This gives reward **over the trajectory**: every step produces a shaped reward in \([0,1]\) (grader + partial credit for context signals + calibration − penalties). `step_number` is the count of **completed** moderations so far; `items_in_episode` is the queue length. Override length with env var `CONTEXT_SHIELD_EPISODE_LENGTH` (integer, clamped to a sensible range).
 
 ---
 
@@ -41,7 +47,11 @@ The project follows the **OpenEnv** layout: typed **Action** / **Observation** (
 | **medium** | Same as easy plus small bonus for citing task `context_keywords` in reasoning. | `graders/medium.py` |
 | **hard** | Correct decision **and** keyword coverage in reasoning vs task `context_keywords`. | `graders/hard.py` |
 
-There are **18** fixed tasks in `tasks/data/` (5 easy, 5 medium, 8 hard). Each episode is **one step** after `reset()` (see `episode_steps` in `openenv.yaml`).
+There are **18** fixed tasks in `tasks/data/` (5 easy, 5 medium, 8 hard). Each episode samples **several** tasks without replacement when the pool is large enough (see `episode_steps` in `openenv.yaml`).
+
+| Variable | Meaning |
+|----------|---------|
+| `CONTEXT_SHIELD_EPISODE_LENGTH` | Items per episode (default **4**). |
 
 ---
 
@@ -86,7 +96,8 @@ The baseline uses the **OpenAI** Python client only. Set:
 | `API_BASE_URL` | OpenAI-compatible base URL (e.g. `https://api.openai.com/v1`). |
 | `MODEL_NAME` | Model id (e.g. `gpt-4o-mini`). |
 | `HF_TOKEN` | Preferred API key name for contest infra; **`OPENAI_API_KEY` is accepted as fallback.** |
-| `SEED` | Optional RNG seed for task sampling (default `42`). |
+| `SEED` | Optional RNG seed for episode sampling (default `42`). |
+| `CONTEXT_SHIELD_EPISODE_LENGTH` | Items per episode for `inference.py` (via the env’s default; default **4**). |
 
 ```bash
 set API_BASE_URL=https://api.openai.com/v1
@@ -96,12 +107,14 @@ set SEED=42
 python inference.py
 ```
 
-The script runs **three** episodes (one sampled task each for **easy**, **medium**, **hard**) and prints structured logs. Example shape:
+The script runs **three** episodes (**easy**, **medium**, **hard**). Each episode has multiple **`[STEP]`** lines (one per queued item) and one **`[END]`** with the **mean** reward across steps. Example shape:
 
 ```text
 [START] task=ContextShield-easy env=context-shield model=gpt-4o-mini
-[STEP] step=1 action='{"decision": "remove", ...}' reward=0.92 done=True error=None
-[END] success=True steps=1 score=0.920 rewards=[0.92]
+[STEP] step=1 action='{"decision": "remove", ...}' reward=0.92 done=false error=null
+[STEP] step=2 action='{"decision": "allow", ...}' reward=0.88 done=false error=null
+...
+[END] success=true steps=4 score=0.910 rewards=[0.92,0.88,...]
 
 [START] task=ContextShield-medium env=context-shield model=gpt-4o-mini
 ...
@@ -109,7 +122,7 @@ The script runs **three** episodes (one sampled task each for **easy**, **medium
 
 ### Baseline scores (reproducibility)
 
-The script prints one `[END]` line per difficulty. **`success`** is `True` when `score >= 0.8`.
+The script prints one `[END]` line per difficulty. **`success`** is `True` when **mean** episode reward `score >= 0.8`.
 
 | Difficulty | Example score | Notes |
 |------------|---------------|--------|
@@ -189,6 +202,7 @@ python -m pytest tests/ -q
 ├── models/              # Pydantic models
 ├── tasks/data/          # Task JSON (easy / medium / hard)
 ├── inference.py         # Baseline (required at repo root)
+├── scripts/oracle_smoke.py  # Deterministic high-reward smoke test (oracle actions)
 ├── openenv.yaml         # Manifest
 ├── pyproject.toml       # Package + `server` console script
 ├── uv.lock              # Lockfile for `openenv validate`

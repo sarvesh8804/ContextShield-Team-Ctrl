@@ -50,3 +50,21 @@ class TaskPool:
             rng = random.Random(seed)
             return rng.choice(pool)
         return random.choice(pool)
+
+    def sample_episode(
+        self,
+        difficulty: Optional[str],
+        *,
+        seed: Optional[int],
+        length: int,
+    ) -> list[Task]:
+        """Sample ``length`` tasks for one episode (without replacement when possible)."""
+        pool = self._tasks
+        if difficulty is not None:
+            pool = [t for t in pool if t.difficulty == difficulty]
+        if not pool:
+            raise ValueError(f"No tasks available for difficulty: {difficulty}")
+        rng = random.Random(seed) if seed is not None else random
+        if len(pool) >= length:
+            return rng.sample(pool, length)
+        return [rng.choice(pool) for _ in range(length)]

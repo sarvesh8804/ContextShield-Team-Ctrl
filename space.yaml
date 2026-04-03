@@ -4,5 +4,6 @@ colorFrom: blue
 colorTo: green
 sdk: docker
 pinned: false
+short_description: OpenEnv content moderation — context-aware trust & safety simulation
 tags:
   - openenv

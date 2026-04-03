@@ -2,9 +2,9 @@
 ContextShieldEnv: OpenEnv-compliant content moderation simulation environment.
 Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 8.1
 """
+import os
 import random
 import sys
-import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -50,21 +50,52 @@ def _context_factors_used(action: Action, task: Task) -> list[str]:
     return [kw for kw in task.context_keywords if kw.lower() in lowered]
 
 
+def _default_episode_length() -> int:
+    raw = os.environ.get("CONTEXT_SHIELD_EPISODE_LENGTH", "4")
+    try:
+        n = int(raw)
+    except ValueError:
+        return 4
+    return max(1, min(n, 32))
+
+
 class ContextShieldEnv:
-    def __init__(self, difficulty: str | None = None, seed: int | None = None) -> None:
+    def __init__(
+        self,
+        difficulty: str | None = None,
+        seed: int | None = None,
+        episode_length: int | None = None,
+    ) -> None:
         self.difficulty = difficulty
         if seed is not None:
             random.seed(seed)
+        self.episode_length = (
+            episode_length if episode_length is not None else _default_episode_length()
+        )
         self._task_pool = TaskPool()
         self._state_manager = StateManager()
         self._reward_fn = RewardFunction()
+        self._episode_tasks: list[Task] = []
+        self._cursor: int = 0
         self._current_task: Task | None = None
 
     def reset(self, seed: int | None = None) -> Observation:
-        task = self._task_pool.sample(self.difficulty, seed=seed)
-        self._current_task = task
-        self._state_manager.reset(task)
-        return self._obs_from_task(task, step_number=0, reward=None, done=False)
+        tasks = self._task_pool.sample_episode(
+            self.difficulty,
+            seed=seed,
+            length=self.episode_length,
+        )
+        self._episode_tasks = tasks
+        self._cursor = 0
+        self._current_task = tasks[0]
+        self._state_manager.reset(tasks)
+        return self._obs_from_task(
+            tasks[0],
+            step_number=0,
+            items_in_episode=len(tasks),
+            reward=None,
+            done=False,
+        )
 
     def _ensure_episode(self) -> None:
         if self._current_task is None:
@@ -78,36 +109,47 @@ class ContextShieldEnv:
                 "Episode has already terminated. Call reset() to start a new episode."
             )
 
-        task = self._current_task
+        task = self._episode_tasks[self._cursor]
         grader = _GRADERS[task.difficulty]()
         grader_score = grader.grade(action, task)
         reward = self._reward_fn.compute(grader_score, action, task)
 
         self._state_manager.record_step(action, reward)
-        self._state_manager.mark_done()
 
-        terminal_obs = self._obs_from_task(
-            task,
-            step_number=1,
-            reward=reward.score,
-            done=True,
-            metadata={
-                "task_id": task.task_id,
-                "ground_truth": task.ground_truth,
-                "policy_reason": task.explanation,
-                "risk_level": _infer_risk_level(task),
-                "context_factors_used": _context_factors_used(action, task),
-            },
-        )
-
-        info = {
+        n = len(self._episode_tasks)
+        meta = {
             "task_id": task.task_id,
             "ground_truth": task.ground_truth,
             "policy_reason": task.explanation,
             "risk_level": _infer_risk_level(task),
             "context_factors_used": _context_factors_used(action, task),
+            "episode_progress": f"{self._state_manager.step_number}/{n}",
         }
+        info = {k: v for k, v in meta.items() if k != "episode_progress"}
 
+        self._cursor += 1
+        if self._cursor < n:
+            self._current_task = self._episode_tasks[self._cursor]
+            self._state_manager.current_task_id = self._current_task.task_id
+            next_obs = self._obs_from_task(
+                self._current_task,
+                step_number=self._state_manager.step_number,
+                items_in_episode=n,
+                reward=reward.score,
+                done=False,
+                metadata=meta,
+            )
+            return (next_obs, reward, False, info)
+
+        self._state_manager.mark_done()
+        terminal_obs = self._obs_from_task(
+            task,
+            step_number=self._state_manager.step_number,
+            items_in_episode=n,
+            reward=reward.score,
+            done=True,
+            metadata=meta,
+        )
         return (terminal_obs, reward, True, info)
 
     def state(self) -> EpisodeState:
@@ -139,13 +181,11 @@ class ContextShieldEnv:
                 "note": str,             # human-readable summary
             }
         """
-        # Find the task
         matches = [t for t in self._task_pool.get_all() if t.task_id == task_id]
         if not matches:
             raise ValueError(f"No task found with task_id: {task_id!r}")
         original_task = matches[0]
 
-        # Build varied task (immutable copy with overrides)
         varied_fields = original_task.model_dump()
         context_delta: dict = {}
 
@@ -160,8 +200,12 @@ class ContextShieldEnv:
 
         varied_task = Task(**varied_fields)
 
-        original_obs = self._obs_from_task(original_task, step_number=0)
-        varied_obs = self._obs_from_task(varied_task, step_number=0)
+        original_obs = self._obs_from_task(
+            original_task, step_number=0, items_in_episode=1, reward=None, done=False
+        )
+        varied_obs = self._obs_from_task(
+            varied_task, step_number=0, items_in_episode=1, reward=None, done=False
+        )
 
         original_risk = _infer_risk_level(original_task)
         varied_risk = _infer_risk_level(varied_task)
@@ -189,6 +233,7 @@ class ContextShieldEnv:
     def _obs_from_task(
         task: Task,
         step_number: int,
+        items_in_episode: int,
         *,
         reward: float | None = None,
         done: bool = False,
@@ -202,6 +247,7 @@ class ContextShieldEnv:
             task_id=task.task_id,
             difficulty=task.difficulty,
             step_number=step_number,
+            items_in_episode=items_in_episode,
             reward=reward,
             done=done,
             metadata=dict(metadata or {}),
