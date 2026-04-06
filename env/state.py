@@ -22,6 +22,9 @@ class StateManager:
         self.history = []
         self.total_score = 0.0
 
+    def set_current_task(self, task_id: str) -> None:
+        self.current_task_id = task_id
+
     def record_step(self, action: Action, reward: Reward) -> None:
         self.history.append({"action": action.model_dump(), "reward": reward.model_dump()})
         self.step_number += 1
@@ -34,7 +37,7 @@ class StateManager:
             step_number=self.step_number,
             done=self.done,
             history=list(self.history),
-            total_score=self.total_score,
+            total_score=round(self.total_score, 4),
         )
 
     def mark_done(self) -> None:

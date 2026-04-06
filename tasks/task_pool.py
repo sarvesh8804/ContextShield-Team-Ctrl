@@ -50,3 +50,24 @@ class TaskPool:
             rng = random.Random(seed)
             return rng.choice(pool)
         return random.choice(pool)
+    def sample_sequence(self, n: int, difficulty: Optional[str] = None, seed: Optional[int] = None) -> list[Task]:
+        """Return a sequence of random tasks.
+        
+        Args:
+            n: Number of tasks to sample.
+            difficulty: Optional difficulty filter.
+            seed: Optional RNG seed.
+        """
+        pool = self._tasks
+        if difficulty is not None:
+            pool = [t for t in pool if t.difficulty == difficulty]
+        
+        if not pool:
+            raise ValueError(f"No tasks available for difficulty: {difficulty}")
+
+        rng = random.Random(seed) if seed is not None else random.Random()
+        
+        # Sample with replacement if n > len(pool), else without replacement
+        if n <= len(pool):
+            return rng.sample(pool, n)
+        return [rng.choice(pool) for _ in range(n)]

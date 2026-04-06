@@ -6,6 +6,7 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+import asyncio
 from unittest.mock import MagicMock
 
 from inference import run_single_task
@@ -28,7 +29,7 @@ def test_run_single_task_valid_json(capsys):
         '"reasoning": "Spam violates marketplace policy in US region; prior_violations noted."}'
     )
     client = make_mock_client(payload)
-    run_single_task(client, "test-model", "easy", seed=42)
+    asyncio.run(run_single_task(client, "test-model", "easy", seed=42))
     out = capsys.readouterr().out
     assert "[START]" in out
     assert "[END]" in out
@@ -39,13 +40,13 @@ def test_run_single_task_api_error_still_logs_end(capsys):
     """When the API raises, fallback JSON is used and [END] is still printed."""
     client = MagicMock()
     client.chat.completions.create.side_effect = RuntimeError("API unavailable")
-    run_single_task(client, "test-model", "medium", seed=0)
+    asyncio.run(run_single_task(client, "test-model", "medium", seed=0))
     out = capsys.readouterr().out
     assert "[END]" in out
 
 
 def test_run_single_task_malformed_json_uses_fallback(capsys):
     client = make_mock_client("not json {{{")
-    run_single_task(client, "test-model", "hard", seed=1)
+    asyncio.run(run_single_task(client, "test-model", "hard", seed=1))
     out = capsys.readouterr().out
     assert "[END]" in out

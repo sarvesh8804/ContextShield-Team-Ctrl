@@ -24,5 +24,5 @@ action_space:
     reasoning: {type: string}
 
 reward_range: [0.0, 1.0]
-episode_steps: 1
+episode_steps: 5
 tasks: [easy, medium, hard]

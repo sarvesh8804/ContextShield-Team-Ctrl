@@ -68,11 +68,12 @@ def test_reset_clears_state(action):
 @settings(max_examples=50)
 def test_step_after_done_raises(action):
     """**Validates: Requirements 1.5**
-    After episode termination, calling step() again raises EpisodeTerminatedError.
+    After 5 steps (episode termination), calling step() again raises EpisodeTerminatedError.
     """
     env = ContextShieldEnv(seed=42)
     env.reset()
-    env.step(action)  # completes the episode (done=True)
+    for _ in range(5):
+        env.step(action)
 
     with pytest.raises(EpisodeTerminatedError):
         env.step(action)
@@ -97,10 +98,14 @@ def test_step_returns_correct_types():
     assert isinstance(info, dict)
 
 
-def test_step_done_is_true():
-    """done flag is always True after step() (single-turn episodes)."""
+def test_step_done_behavior():
+    """done flag is True exactly after the 5th step."""
     env = ContextShieldEnv(seed=1)
     env.reset()
+    for _ in range(4):
+        _, _, done, _ = env.step(make_action())
+        assert done is False
+    
     _, _, done, _ = env.step(make_action())
     assert done is True
 
@@ -114,12 +119,13 @@ def test_step_info_has_required_keys():
     assert "ground_truth" in info
 
 
-def test_step_observation_step_number_is_1():
-    """Terminal observation has step_number == 1."""
+def test_step_observation_step_numbers():
+    """Observations have incrementing step numbers."""
     env = ContextShieldEnv(seed=3)
     env.reset()
-    obs, _, _, _ = env.step(make_action())
-    assert obs.step_number == 1
+    for i in range(1, 6):
+        obs, _, _, _ = env.step(make_action())
+        assert obs.step_number == i
 
 
 def test_reset_returns_observation_with_step_number_0():

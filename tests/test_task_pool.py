@@ -49,3 +49,23 @@ def test_sample_hard_returns_hard_task(pool):
 def test_sample_nonexistent_difficulty_raises_value_error(pool):
     with pytest.raises(ValueError, match="nonexistent"):
         pool.sample("nonexistent")
+
+
+def test_sample_sequence_returns_requested_count(pool):
+    tasks = pool.sample_sequence(5)
+    assert len(tasks) == 5
+    for t in tasks:
+        assert isinstance(t, Task)
+
+
+def test_sample_sequence_difficulty_filter(pool):
+    tasks = pool.sample_sequence(3, difficulty="easy")
+    assert len(tasks) == 3
+    for t in tasks:
+        assert t.difficulty == "easy"
+
+
+def test_sample_sequence_seed_determinism(pool):
+    seq1 = pool.sample_sequence(5, seed=42)
+    seq2 = pool.sample_sequence(5, seed=42)
+    assert [t.task_id for t in seq1] == [t.task_id for t in seq2]

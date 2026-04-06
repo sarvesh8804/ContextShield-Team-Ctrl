@@ -13,7 +13,7 @@ tags:
 
 # ContextShield
 
-ContextShield is a context-aware trust and safety simulation environment. It models **content moderation** across platforms and regions: the agent chooses **allow**, **remove**, or **escalate** with reasoning, and receives **shaped rewards** (grader score, context-signal partial credit, calibration, penalties).
+ContextShield is a context-aware trust and safety simulation environment. It models **content moderation** across platforms and regions: the agent processes a **trajectory of 5 cases** per episode, choosing **allow**, **remove**, or **escalate** with reasoning for each, and receives **shaped rewards** (grader score, context-signal partial credit, calibration, penalties).
 
 The project follows the **OpenEnv** layout: typed **Action** / **Observation** (Pydantic, extending `openenv-core` base types), `reset()` / `step()` / `state()`, `openenv.yaml`, an HTTP server for Hugging Face Spaces, and a root **`inference.py`** baseline that logs **`[START]`**, **`[STEP]`**, **`[END]`** lines.
 
@@ -41,7 +41,7 @@ The project follows the **OpenEnv** layout: typed **Action** / **Observation** (
 | **medium** | Same as easy plus small bonus for citing task `context_keywords` in reasoning. | `graders/medium.py` |
 | **hard** | Correct decision **and** keyword coverage in reasoning vs task `context_keywords`. | `graders/hard.py` |
 
-There are **18** fixed tasks in `tasks/data/` (5 easy, 5 medium, 8 hard). Each episode is **one step** after `reset()` (see `episode_steps` in `openenv.yaml`).
+There are **18** fixed tasks in `tasks/data/` (5 easy, 5 medium, 8 hard). Each episode consists of **5 sequential steps** (see `episode_steps` in `openenv.yaml`), with the agent revieweing a new case in each step.
 
 ---
 
