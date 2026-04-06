@@ -19,6 +19,16 @@ The project follows the **OpenEnv** layout: typed **Action** / **Observation** (
 
 ---
 
+## 🌐 Live Deployment
+
+The environment is deployed and publicly accessible on Hugging Face Spaces:
+
+👉 [sarveshhuddar/TeamCtrl](https://huggingface.co/spaces/sarveshhuddar/TeamCtrl)
+
+You can directly interact with the OpenEnv API endpoints (`/health`, `/reset`, `/step`) via this deployment.
+
+---
+
 ## Action and observation spaces
 
 **Action (JSON):**
@@ -111,12 +121,12 @@ The script runs **three** episodes (one sampled task each for **easy**, **medium
 
 ## Baseline scores (gemini-3-flash)
 
-The following scores were achieved using the `inference.py` baseline script with **`gemini-3-flash`** (verified via Hugging Face Space deployment):
+The following scores were achieved using the `inference.py` baseline script with **`gemini-3-flash`** (verified via Hugging Face Space deployment, gpt-4o-mini also works):
 
 | Metric | Value |
 |--------|-------|
 | **Model** | `gemini-3-flash` |
-| **Mean Trajectory Score** | **0.940** |
+| **Mean Trajectory Score (sample)** | **0.940** |
 | **Episode Length** | 5 steps |
 | **Status** | ✅ 100% Pass (Threshold 0.1) |
 
