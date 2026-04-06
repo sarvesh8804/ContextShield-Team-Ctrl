@@ -107,27 +107,6 @@ The script runs **three** episodes (one sampled task each for **easy**, **medium
 ...
 ```
 
-### Baseline scores (reproducibility)
-
-The script prints one `[END]` line per difficulty. **`success`** is `True` when `score >= 0.8`.
-
-| Difficulty | Example score | Notes |
-|------------|---------------|--------|
-| easy | *run locally* | With `gpt-4o-mini`, `SEED=42`, valid `HF_TOKEN`, expect a score in **0.0–1.0** that depends on the sampled case. |
-| medium | *run locally* | Same. |
-| hard | *run locally* | Same. |
-
-**Deterministic fallback (no valid LLM key):** if the chat completion call fails, the script uses a fixed JSON action (`escalate` / `"error fallback"`). With `SEED=42` this produced **easy 0.500**, **medium 0.500**, **hard 0.100** on one run — useful only as a **smoke test**, not a model baseline. Replace the table with real numbers from:
-
-```bash
-# Linux / macOS
-export API_BASE_URL=https://api.openai.com/v1
-export MODEL_NAME=gpt-4o-mini
-export HF_TOKEN=sk-...
-export SEED=42
-python inference.py
-```
-
 ---
 
 ## Deploy to Hugging Face Spaces
