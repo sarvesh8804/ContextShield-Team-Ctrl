@@ -121,7 +121,7 @@ The script runs **three** episodes (one sampled task each for **easy**, **medium
 
 ## Baseline scores (gemini-3-flash)
 
-The following scores were achieved using the `inference.py` baseline script with **`gemini-3-flash`** (verified via Hugging Face Space deployment, gpt-4o-mini also works):
+The following scores were achieved using the `inference.py` baseline script with **`gemini-3-flash`** (verified via Hugging Face Space deployment, gpt-4o-mini and similar models also work):
 
 | Metric | Value |
 |--------|-------|
