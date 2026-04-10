@@ -50,7 +50,7 @@ def grade_severity_ranker(agent_ranking: list[str], task: Task) -> float:
     agent_top_n = set(agent_ranking[:n_exploitable])
     correct_in_top = agent_top_n & exploitable_ids
 
-    score = len(correct_in_top) * 0.15
+    score = len(correct_in_top) * 0.30
     return max(0.05, min(0.95, score))
 
 
@@ -77,9 +77,9 @@ def grade_fix_planner(agent_plan: list[dict], task: Task) -> float:
         pkg = entry.get("package", "")
         ver = entry.get("version", "")
         if pkg in correct_fixes and correct_fixes[pkg] == ver:
-            score += 0.20
+            score += 0.45
         elif pkg not in exploitable_pkgs:
-            score -= 0.10          # over-patch penalty: non-imported package fixed unnecessarily
+            score -= 0.20          # over-patch penalty: non-imported package fixed unnecessarily
 
     return max(0.05, min(0.95, score))
 

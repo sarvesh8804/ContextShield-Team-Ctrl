@@ -31,8 +31,8 @@ Two baselines measured with `seed=42`:
 
 | Task | Difficulty | Naive LLM | Tool-Aware Agent | RL Headroom |
 |---|---|---|---|---|
-| `severity-ranker` | Easy | **0.200** | 0.500 | +0.300 |
-| `fix-planner` | Medium | **0.150** | 0.450 | +0.300 |
+| `severity-ranker` | Easy | **0.350** | 0.950 | +0.600 |
+| `fix-planner` | Medium | **0.350** | 0.950 | +0.600 |
 | `conflict-resolver` | Hard | **0.050** | 0.950 | +0.900 |
 
 *Success = score > 0.70. Naive LLM success rate: Easy 0%, Medium 0%, Hard 0%.*
@@ -81,10 +81,10 @@ The agent must discover which packages are actually imported (`check_imports`) �
 
 | Milestone | Condition | Reward Δ |
 |---|---|---|
-| CVE correctly placed in exploitable tier | Package is imported AND ranked in top-N | +0.15 per CVE |
-| CVE correctly placed in non-exploitable tier | Package not imported, ranked lower | +0.15 per CVE |
+| CVE correctly placed in exploitable tier | Package is imported AND ranked in top-N | +0.30 per CVE |
+| CVE correctly placed in non-exploitable tier | Package not imported, ranked lower | +0.30 per CVE |
 
-**Max reward delta:** up to 6 × 0.15 = 0.90 | **Max steps:** 12 | **Starting score:** 0.05
+**Max reward delta:** up to 3 × 0.30 = 0.90 | **Max steps:** 12 | **Starting score:** 0.05
 **Episode max score:** 0.05 + 0.90 = **0.95**
 
 ---
@@ -97,11 +97,11 @@ Ground-truth fix versions are sourced from the CVE records. The agent must use `
 
 | Milestone | Condition | Reward Δ |
 |---|---|---|
-| Correct fix version for exploitable package | `get_fix_version` result matched exactly | +0.20 per package |
-| Unnecessary fix on non-imported package | Penalised for noise | −0.05 per entry |
+| Correct fix version for exploitable package | `get_fix_version` result matched exactly | +0.45 per package |
+| Unnecessary fix on non-imported package | Penalised for noise | −0.20 per entry |
 
-**Max reward delta:** 3 × 0.20 = 0.60 | **Max steps:** 12 | **Starting score:** 0.05
-**Episode max score:** 0.05 + 0.60 = **0.65**
+**Max reward delta:** 2 × 0.45 = 0.90 | **Max steps:** 12 | **Starting score:** 0.05
+**Episode max score:** 0.05 + 0.90 = **0.95**
 
 ---
 
@@ -194,14 +194,14 @@ At each step t:
 
 | Event | Δ Reward |
 |---|---|
-| CVE correctly classified as exploitable / not (severity-ranker) | +0.15 per CVE |
-| Correct fix version submitted (fix-planner) | +0.20 per package |
+| CVE correctly classified as exploitable / not (severity-ranker) | +0.30 per CVE |
+| Correct fix version submitted (fix-planner) | +0.45 per package |
 | Conflict trap found via `check_conflicts` before submitting | +0.10 |
 | Conflict trap triggered: submitted the naive conflicting fix | −0.10 |
 | Conflict-resolver submitted without running `check_conflicts` | −0.05 |
 | `show_cve` / `get_fix_version` called on unknown CVE or package | −0.03 |
 | Identical tool call repeated | −0.01 |
-| Fix submitted for a non-imported package | −0.05 |
+| Fix submitted for a non-imported package | −0.20 |
 
 Scores are clamped to `[0.05, 0.95]` at every step, satisfying the OpenEnv Phase 2 requirement that task scores are **strictly in (0, 1)**.
 
