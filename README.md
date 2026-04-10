@@ -47,9 +47,25 @@ This makes PatchGym directly useful for evaluating:
 - Reasoning models being fine-tuned with RL on security and DevOps tasks
 - Multi-step planning under information asymmetry (not all packages are imported)
 
+### The Information Asymmetry Challenge
+
+Agents must distinguish between installed noise and active risk.
+
+**Reality (Ground Truth):**
+- `requests==2.25.1` (INSTALLED, IMPORTED, NO CVE)
+- `aiohttp==3.8.1` (INSTALLED, **IMPORTED**, **CVE-2023-3001 found**) -> **CRITICAL FIX**
+- `django==3.1.0` (INSTALLED, NOT IMPORTED, CVE-2021-YYYY found) -> **IGNORE (No Exploit Path)**
+
+**Agent View (Initial):**
+- `requirements.txt` lists 10 packages.
+- `cve_list` lists 5 critical alerts.
+The agent must use `check_imports` and `show_cve` to deduce the critical path and test upgrade constraints.
+
 ---
 
 ## Environment Architecture
+
+![PatchGym Architecture](Gemini_Generated_Image_dno2pgdno2pgdno2.png)
 
 **Synthetic project (deterministic seed 42):**
 - `requirements.txt` — 5–6 packages at pinned versions
@@ -125,6 +141,28 @@ Each step submits one tool call as a structured JSON action:
 
 ```json
 { "command": "check_conflicts", "args": {"package": "urllib3", "version": "2.0.4"} }
+```
+
+```json
+// Example: Checking actual usage of a package
+{
+  "command": "check_imports",
+  "args": { "package_name": "aiohttp" }
+}
+
+// Example: Simulating a remediation attempt (Task 3)
+{
+  "command": "check_conflicts",
+  "args": { "package": "urllib3", "version": "2.0.7" }
+}
+
+// Example: Submitting final ranking (Task 1)
+{
+  "command": "submit_plan",
+  "args": {
+    "ranking": ["CVE-2023-1001", "CVE-2023-1002"]
+  }
+}
 ```
 
 **Available tools:**
@@ -246,6 +284,18 @@ Returns the full current episode state snapshot (task, step count, cumulative re
 ### `GET /healthz`
 
 Returns `{"status": "ok"}` — used by HF Spaces for liveness checks.
+
+---
+
+## OpenEnv Specification Adherence
+
+PatchGym was built from the ground up to satisfy all requirements for the Meta × PyTorch × Hugging Face Hackathon Phase 2 evaluation:
+
+1.  **Strict Determinism:** `random.seed(42)` is set on every `/reset`. Identical tool call sequences yield identical observations and rewards across runs.
+2.  **Pure Grader:** Grader logic uses deterministic dictionary/set comparisons (`patch_grader.py`). No LLM-as-a-Judge variance.
+3.  **Score Bounds:** Rewards are accumulated and clamped at every step to strictly `[0.05, 0.95]`, satisfying the requirement for final scores within the exclusive `(0, 1)` range.
+4.  **Action Primitives:** Implements standard `reset()`, `step()`, and `state()` API via FastAPI endpoints.
+5.  **Tool-Use Architecture:** Framed as a multi-step (max 12) trajectory, testing reasoning and planning rather than single-turn QA.
 
 ---
 
