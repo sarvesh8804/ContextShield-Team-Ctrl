@@ -93,7 +93,7 @@ class PatchGymEnv:
                 result = matched[0].model_dump()
 
         elif cmd == "check_imports":
-            pkg = args.get("package_name", "")
+            pkg = args.get("package_name") or args.get("package", "")
             if pkg not in self._task.requirements:
                 error = f"Package {pkg!r} is not in requirements."
                 delta += _WASTED_CALL_PENALTY
@@ -175,11 +175,18 @@ class PatchGymEnv:
     # ------------------------------------------------------------------
 
     def _make_obs(self, result, error) -> Observation:
+        task = self._task
+        if task:
+            cve_ids = [c.cve_id for c in task.cves]
+            hint_base = TASK_HINTS.get(task.difficulty, "")
+            hint = f"{hint_base} | CVEs in scope: {', '.join(cve_ids)}"
+        else:
+            hint = ""
         return Observation(
-            task_id=self._task.task_id if self._task else "",
+            task_id=task.task_id if task else "",
             step_number=self._state.step_number,
             result=result,
             error=error,
-            hint=TASK_HINTS.get(self._task.difficulty if self._task else "", ""),
+            hint=hint,
             total_reward=round(self._cumulative_reward, 4),
         )

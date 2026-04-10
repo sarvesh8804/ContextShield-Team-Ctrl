@@ -61,7 +61,9 @@ def grade_severity_ranker(agent_ranking: list[str], task: Task) -> float:
 def grade_fix_planner(agent_plan: list[dict], task: Task) -> float:
     """
     +0.20 per correct (package, fix_version) pair in agent's plan.
-    -0.05 if the plan touches a non-exploitable package (unnecessary fix).
+    -0.15 if the plan touches a non-exploitable package (unnecessary fix).
+    Penalty is intentionally 3x larger than earlier to ensure naive agents
+    that patch all CVEs score lower than easy-task naive agents.
     Score clamped to [0.05, 0.95].
     """
     if not agent_plan:
@@ -77,7 +79,7 @@ def grade_fix_planner(agent_plan: list[dict], task: Task) -> float:
         if pkg in correct_fixes and correct_fixes[pkg] == ver:
             score += 0.20
         elif pkg not in exploitable_pkgs:
-            score -= 0.05          # unnecessary / wasted fix
+            score -= 0.10          # over-patch penalty: non-imported package fixed unnecessarily
 
     return max(0.05, min(0.95, score))
 

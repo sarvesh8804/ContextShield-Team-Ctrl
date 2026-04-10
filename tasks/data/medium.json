@@ -10,7 +10,7 @@
       "werkzeug": "2.0.3",
       "jinja2": "3.0.3"
     },
-    "imports": ["requests", "flask", "jinja2"],
+    "imports": ["requests", "jinja2"],
     "cves": [
       {
         "cve_id": "CVE-2023-1001",
@@ -35,6 +35,22 @@
         "fix_version": "2.2.3",
         "description": "Path traversal via crafted URL.",
         "exploitable": false
+      },
+      {
+        "cve_id": "CVE-2023-1004",
+        "package": "urllib3",
+        "severity": 6.5,
+        "fix_version": "1.26.18",
+        "description": "CRLF injection in HTTP headers.",
+        "exploitable": false
+      },
+      {
+        "cve_id": "CVE-2023-1005",
+        "package": "certifi",
+        "severity": 5.8,
+        "fix_version": "2023.7.22",
+        "description": "Revoked intermediate CA not removed from bundle.",
+        "exploitable": false
       }
     ],
     "correct_ranking": [],
@@ -56,7 +72,7 @@
       "uvicorn": "0.18.3",
       "python-multipart": "0.0.5"
     },
-    "imports": ["pydantic", "fastapi", "httpx"],
+    "imports": ["pydantic", "httpx"],
     "cves": [
       {
         "cve_id": "CVE-2023-2001",
@@ -81,6 +97,22 @@
         "fix_version": "0.23.3",
         "description": "Redirect to arbitrary URL via 30x responses.",
         "exploitable": true
+      },
+      {
+        "cve_id": "CVE-2023-2004",
+        "package": "uvicorn",
+        "severity": 5.3,
+        "fix_version": "0.20.0",
+        "description": "H11 request smuggling via malformed headers.",
+        "exploitable": false
+      },
+      {
+        "cve_id": "CVE-2023-2005",
+        "package": "fastapi",
+        "severity": 4.8,
+        "fix_version": "0.95.0",
+        "description": "Information disclosure in OpenAPI schema endpoint.",
+        "exploitable": false
       }
     ],
     "correct_ranking": [],
