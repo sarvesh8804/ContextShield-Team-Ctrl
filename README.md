@@ -23,21 +23,16 @@ PatchGym puts an agent in the role of a security engineer facing a backlog of CV
 
 ## Baseline Scores
 
-Two baselines measured with `seed=42`:
+Measured over 5 deterministic episodes (`random.seed(42)`, `temperature=0.2`) using `Qwen/Qwen3-30B-A3B` via the HuggingFace inference router. Score = final cumulative reward at episode end (strictly in (0.05, 0.95)).
 
-**Naive LLM** — ranks by raw CVSS only, patches all packages regardless of imports, never calls `check_conflicts`. Mimics a base model with no tool-use training.
+| Task | Difficulty | Model | Avg Score | Avg Steps | Success Rate |
+|---|---|---|---|---|---|
+| `severity-ranker` | Easy | Qwen3-30B-A3B | 0.45 | 7.4 | 40% |
+| `fix-planner` | Medium | Qwen3-30B-A3B | 0.35 | 8.2 | 20% |
+| `conflict-resolver` | Hard | Qwen3-30B-A3B | 0.05 | 6.0 | 0% |
 
-**Tool-aware agent** — uses `check_imports` before ranking, uses `check_conflicts` on the hard task to discover the conflict trap before submitting.
-
-| Task | Difficulty | Naive LLM | Tool-Aware Agent | RL Headroom |
-|---|---|---|---|---|
-| `severity-ranker` | Easy | **0.350** | 0.950 | +0.600 |
-| `fix-planner` | Medium | **0.350** | 0.950 | +0.600 |
-| `conflict-resolver` | Hard | **0.050** | 0.950 | +0.900 |
-
-*Success = score > 0.70. Naive LLM success rate: Easy 0%, Medium 0%, Hard 0%.*
-
-The hard task is the cleanest signal: a naive agent that submits the published CVE fix without checking conflicts hits the floor (`0.05`). A tool-trained agent that discovers the transitive dependency trap first reaches `0.95`. That **0.90 gap** is pure RL headroom — exactly what this environment is designed to measure.
+*Success = score > 0.70 (meaningful majority of task milestones solved).*  
+*The hard task (conflict-resolver) requires reasoning about transitive dependency traps that current baseline models lack; it is intended to challenge frontier-scale RL models.*
 
 ---
 
