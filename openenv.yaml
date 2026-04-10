@@ -1,28 +1,29 @@
-name: context-shield
+name: patch-gym
 version: "1.0.0"
-entrypoint: env.openenv_adapter:ContextShieldOpenEnv
+entrypoint: env.openenv_adapter:PatchGymOpenEnv
 description: >
-  Context-aware content moderation simulation environment.
-  Agents act as content moderators across platforms and regions.
+  Dependency vulnerability triage environment.
+  Agents use tool calls to assess CVEs, plan safe fixes, and resolve
+  transitive dependency conflicts — all against in-memory synthetic projects.
 
 observation_space:
   type: object
   properties:
-    content: {type: string}
-    platform: {type: string, enum: [social_media, marketplace, messaging]}
-    region: {type: string, enum: [US, EU, APAC]}
-    user_history: {type: object}
     task_id: {type: string}
-    difficulty: {type: string, enum: [easy, medium, hard]}
     step_number: {type: integer}
+    result: {type: object}
+    error: {type: string}
+    hint: {type: string}
+    total_reward: {type: number}
 
 action_space:
   type: object
   properties:
-    decision: {type: string, enum: [allow, remove, escalate]}
-    confidence: {type: number, minimum: 0.0, maximum: 1.0}
-    reasoning: {type: string}
+    command:
+      type: string
+      enum: [list_packages, show_cve, check_imports, get_fix_version, check_conflicts, submit_plan]
+    args: {type: object}
 
-reward_range: [0.0, 1.0]
-episode_steps: 5
-tasks: [easy, medium, hard]
+reward_range: [0.05, 0.95]
+episode_steps: 12
+tasks: [severity-ranker, fix-planner, conflict-resolver]

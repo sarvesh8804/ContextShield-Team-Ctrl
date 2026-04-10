@@ -1,42 +1,90 @@
 [
   {
-    "task_id": "hard_001",
+    "task_id": "hard_conflictresolver_001",
     "difficulty": "hard",
-    "input_value": 1.0,
-    "from_unit": "watt_hour_per_kg",
-    "to_unit": "kilojoule_per_pound",
-    "correct_answer": 1.63293
+    "requirements": {
+      "aiohttp": "3.8.1",
+      "yarl": "1.7.2",
+      "multidict": "6.0.2",
+      "charset-normalizer": "2.1.0",
+      "async-timeout": "4.0.2"
+    },
+    "imports": ["aiohttp", "yarl"],
+    "cves": [
+      {
+        "cve_id": "CVE-2023-3001",
+        "package": "aiohttp",
+        "severity": 9.3,
+        "fix_version": "3.9.0",
+        "description": "HTTP request smuggling via malformed chunked encoding.",
+        "exploitable": true
+      },
+      {
+        "cve_id": "CVE-2023-3002",
+        "package": "yarl",
+        "severity": 6.1,
+        "fix_version": "1.7.2",
+        "description": "Open redirect via Unicode normalization bypass.",
+        "exploitable": true
+      }
+    ],
+    "conflict_trap": {
+      "package": "aiohttp",
+      "naive_fix": "3.9.0",
+      "conflict_with": "async-timeout",
+      "conflict_reason": "aiohttp>=3.9.0 requires async-timeout>=4.0.3 but current install is 4.0.2",
+      "safe_fix": "3.8.6",
+      "safe_fix_also_needed": {"package": "async-timeout", "version": "4.0.3"}
+    },
+    "correct_ranking": [],
+    "correct_plan": [],
+    "correct_resolution": [
+      {"package": "aiohttp", "version": "3.8.6"},
+      {"package": "async-timeout", "version": "4.0.3"}
+    ]
   },
   {
-    "task_id": "hard_002",
+    "task_id": "hard_conflictresolver_002",
     "difficulty": "hard",
-    "input_value": 100.0,
-    "from_unit": "celsius",
-    "to_unit": "kelvin",
-    "correct_answer": 373.15
-  },
-  {
-    "task_id": "hard_003",
-    "difficulty": "hard",
-    "input_value": 1.0,
-    "from_unit": "slug",
-    "to_unit": "grams",
-    "correct_answer": 14593.9
-  },
-  {
-    "task_id": "hard_004",
-    "difficulty": "hard",
-    "input_value": -40.0,
-    "from_unit": "celsius",
-    "to_unit": "fahrenheit",
-    "correct_answer": -40.0
-  },
-  {
-    "task_id": "hard_005",
-    "difficulty": "hard",
-    "input_value": 1.0,
-    "from_unit": "btu_per_pound_celsius",
-    "to_unit": "joule_per_kg_kelvin",
-    "correct_answer": 4186.8
+    "requirements": {
+      "boto3": "1.24.0",
+      "botocore": "1.27.0",
+      "s3transfer": "0.6.0",
+      "urllib3": "1.26.9",
+      "python-dateutil": "2.8.2"
+    },
+    "imports": ["boto3", "urllib3"],
+    "cves": [
+      {
+        "cve_id": "CVE-2023-4001",
+        "package": "urllib3",
+        "severity": 8.8,
+        "fix_version": "2.0.4",
+        "description": "CRLF injection via header values allowing cookie hijacking.",
+        "exploitable": true
+      },
+      {
+        "cve_id": "CVE-2023-4002",
+        "package": "botocore",
+        "severity": 5.3,
+        "fix_version": "1.27.96",
+        "description": "AWS credentials exposed in debug logging.",
+        "exploitable": false
+      }
+    ],
+    "conflict_trap": {
+      "package": "urllib3",
+      "naive_fix": "2.0.4",
+      "conflict_with": "botocore",
+      "conflict_reason": "botocore<1.29 pins urllib3<2, so upgrading urllib3 to 2.x breaks botocore",
+      "safe_fix": "1.26.18",
+      "safe_fix_also_needed": {"package": "botocore", "version": "1.29.76"}
+    },
+    "correct_ranking": [],
+    "correct_plan": [],
+    "correct_resolution": [
+      {"package": "urllib3", "version": "1.26.18"},
+      {"package": "botocore", "version": "1.29.76"}
+    ]
   }
 ]

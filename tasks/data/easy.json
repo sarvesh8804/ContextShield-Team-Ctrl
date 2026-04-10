@@ -1,42 +1,150 @@
 [
   {
-    "task_id": "easy_001",
+    "task_id": "easy_severity_001",
     "difficulty": "easy",
-    "input_value": 1.0,
-    "from_unit": "kg",
-    "to_unit": "lbs",
-    "correct_answer": 2.20462
+    "requirements": {
+      "requests": "2.27.0",
+      "flask": "2.0.1",
+      "numpy": "1.21.0",
+      "pillow": "9.0.0",
+      "boto3": "1.24.0",
+      "pyyaml": "5.4.1"
+    },
+    "imports": ["requests", "flask", "numpy"],
+    "cves": [
+      {
+        "cve_id": "CVE-2023-0001",
+        "package": "requests",
+        "severity": 9.1,
+        "fix_version": "2.31.0",
+        "description": "HTTP header injection vulnerability allowing SSRF attacks.",
+        "exploitable": true
+      },
+      {
+        "cve_id": "CVE-2023-0002",
+        "package": "pillow",
+        "severity": 7.5,
+        "fix_version": "9.3.0",
+        "description": "Buffer overflow in image decompression.",
+        "exploitable": false
+      },
+      {
+        "cve_id": "CVE-2023-0003",
+        "package": "flask",
+        "severity": 6.4,
+        "fix_version": "2.2.0",
+        "description": "Open redirect flaw in URL routing.",
+        "exploitable": true
+      },
+      {
+        "cve_id": "CVE-2023-0004",
+        "package": "pyyaml",
+        "severity": 8.8,
+        "fix_version": "6.0",
+        "description": "Arbitrary code execution via unsafe YAML load.",
+        "exploitable": false
+      },
+      {
+        "cve_id": "CVE-2023-0005",
+        "package": "numpy",
+        "severity": 5.3,
+        "fix_version": "1.24.0",
+        "description": "Integer overflow in array indexing.",
+        "exploitable": true
+      },
+      {
+        "cve_id": "CVE-2023-0006",
+        "package": "boto3",
+        "severity": 4.1,
+        "fix_version": "1.26.0",
+        "description": "Credential leakage in debug logs.",
+        "exploitable": false
+      }
+    ],
+    "correct_ranking": [
+      "CVE-2023-0001",
+      "CVE-2023-0003",
+      "CVE-2023-0005",
+      "CVE-2023-0004",
+      "CVE-2023-0002",
+      "CVE-2023-0006"
+    ],
+    "correct_plan": [],
+    "correct_resolution": [],
+    "conflict_trap": {}
   },
   {
-    "task_id": "easy_002",
+    "task_id": "easy_severity_002",
     "difficulty": "easy",
-    "input_value": 0.0,
-    "from_unit": "celsius",
-    "to_unit": "fahrenheit",
-    "correct_answer": 32.0
-  },
-  {
-    "task_id": "easy_003",
-    "difficulty": "easy",
-    "input_value": 5.0,
-    "from_unit": "km",
-    "to_unit": "miles",
-    "correct_answer": 3.10686
-  },
-  {
-    "task_id": "easy_004",
-    "difficulty": "easy",
-    "input_value": 10.0,
-    "from_unit": "cm",
-    "to_unit": "inches",
-    "correct_answer": 3.93701
-  },
-  {
-    "task_id": "easy_005",
-    "difficulty": "easy",
-    "input_value": 1.0,
-    "from_unit": "liter",
-    "to_unit": "milliliter",
-    "correct_answer": 1000.0
+    "requirements": {
+      "django": "3.2.0",
+      "cryptography": "38.0.0",
+      "sqlalchemy": "1.4.0",
+      "celery": "5.2.0",
+      "redis": "4.3.0",
+      "paramiko": "2.10.0"
+    },
+    "imports": ["django", "cryptography", "sqlalchemy"],
+    "cves": [
+      {
+        "cve_id": "CVE-2023-0011",
+        "package": "django",
+        "severity": 9.8,
+        "fix_version": "3.2.19",
+        "description": "SQL injection via crafted filter() arguments.",
+        "exploitable": true
+      },
+      {
+        "cve_id": "CVE-2023-0012",
+        "package": "paramiko",
+        "severity": 8.1,
+        "fix_version": "2.11.0",
+        "description": "Host key policy bypass allows MitM attacks.",
+        "exploitable": false
+      },
+      {
+        "cve_id": "CVE-2023-0013",
+        "package": "cryptography",
+        "severity": 7.5,
+        "fix_version": "39.0.1",
+        "description": "Weak RSA padding oracle vulnerability.",
+        "exploitable": true
+      },
+      {
+        "cve_id": "CVE-2023-0014",
+        "package": "celery",
+        "severity": 6.5,
+        "fix_version": "5.3.0",
+        "description": "Task result backend leaks sensitive data.",
+        "exploitable": false
+      },
+      {
+        "cve_id": "CVE-2023-0015",
+        "package": "sqlalchemy",
+        "severity": 5.9,
+        "fix_version": "1.4.46",
+        "description": "Reflected XSS in error output.",
+        "exploitable": true
+      },
+      {
+        "cve_id": "CVE-2023-0016",
+        "package": "redis",
+        "severity": 3.7,
+        "fix_version": "4.4.0",
+        "description": "Timing side-channel in AUTH command.",
+        "exploitable": false
+      }
+    ],
+    "correct_ranking": [
+      "CVE-2023-0011",
+      "CVE-2023-0013",
+      "CVE-2023-0015",
+      "CVE-2023-0012",
+      "CVE-2023-0014",
+      "CVE-2023-0016"
+    ],
+    "correct_plan": [],
+    "correct_resolution": [],
+    "conflict_trap": {}
   }
 ]

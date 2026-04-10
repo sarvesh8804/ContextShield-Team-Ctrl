@@ -1,42 +1,94 @@
 [
   {
-    "task_id": "medium_001",
+    "task_id": "medium_fixplanner_001",
     "difficulty": "medium",
-    "input_value": 1.0,
-    "from_unit": "cubic_meters",
-    "to_unit": "gallons",
-    "correct_answer": 264.172
+    "requirements": {
+      "requests": "2.27.0",
+      "urllib3": "1.26.9",
+      "certifi": "2022.6.15",
+      "flask": "2.0.1",
+      "werkzeug": "2.0.3",
+      "jinja2": "3.0.3"
+    },
+    "imports": ["requests", "flask", "jinja2"],
+    "cves": [
+      {
+        "cve_id": "CVE-2023-1001",
+        "package": "requests",
+        "severity": 9.1,
+        "fix_version": "2.31.0",
+        "description": "SSRF via header injection.",
+        "exploitable": true
+      },
+      {
+        "cve_id": "CVE-2023-1002",
+        "package": "jinja2",
+        "severity": 8.8,
+        "fix_version": "3.1.2",
+        "description": "Server-side template injection.",
+        "exploitable": true
+      },
+      {
+        "cve_id": "CVE-2023-1003",
+        "package": "werkzeug",
+        "severity": 7.5,
+        "fix_version": "2.2.3",
+        "description": "Path traversal via crafted URL.",
+        "exploitable": false
+      }
+    ],
+    "correct_ranking": [],
+    "correct_plan": [
+      {"package": "requests", "version": "2.31.0"},
+      {"package": "jinja2", "version": "3.1.2"}
+    ],
+    "correct_resolution": [],
+    "conflict_trap": {}
   },
   {
-    "task_id": "medium_002",
+    "task_id": "medium_fixplanner_002",
     "difficulty": "medium",
-    "input_value": 1.0,
-    "from_unit": "kwh",
-    "to_unit": "btu",
-    "correct_answer": 3412.14
-  },
-  {
-    "task_id": "medium_003",
-    "difficulty": "medium",
-    "input_value": 10.0,
-    "from_unit": "knots",
-    "to_unit": "km_per_hour",
-    "correct_answer": 18.52
-  },
-  {
-    "task_id": "medium_004",
-    "difficulty": "medium",
-    "input_value": 1.0,
-    "from_unit": "atm",
-    "to_unit": "pascal",
-    "correct_answer": 101325.0
-  },
-  {
-    "task_id": "medium_005",
-    "difficulty": "medium",
-    "input_value": 60.0,
-    "from_unit": "mph",
-    "to_unit": "meters_per_second",
-    "correct_answer": 26.8224
+    "requirements": {
+      "pydantic": "1.9.0",
+      "fastapi": "0.85.0",
+      "httpx": "0.23.0",
+      "starlette": "0.20.4",
+      "uvicorn": "0.18.3",
+      "python-multipart": "0.0.5"
+    },
+    "imports": ["pydantic", "fastapi", "httpx"],
+    "cves": [
+      {
+        "cve_id": "CVE-2023-2001",
+        "package": "pydantic",
+        "severity": 8.2,
+        "fix_version": "1.10.4",
+        "description": "ReDoS via crafted email validation input.",
+        "exploitable": true
+      },
+      {
+        "cve_id": "CVE-2023-2002",
+        "package": "starlette",
+        "severity": 7.5,
+        "fix_version": "0.20.4",
+        "description": "Timing attack in cookie comparison.",
+        "exploitable": false
+      },
+      {
+        "cve_id": "CVE-2023-2003",
+        "package": "httpx",
+        "severity": 6.8,
+        "fix_version": "0.23.3",
+        "description": "Redirect to arbitrary URL via 30x responses.",
+        "exploitable": true
+      }
+    ],
+    "correct_ranking": [],
+    "correct_plan": [
+      {"package": "pydantic", "version": "1.10.4"},
+      {"package": "httpx", "version": "0.23.3"}
+    ],
+    "correct_resolution": [],
+    "conflict_trap": {}
   }
 ]

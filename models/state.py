@@ -1,3 +1,4 @@
+from typing import Any
 from pydantic import BaseModel
 
 
@@ -6,5 +7,5 @@ class EpisodeState(BaseModel):
     current_task_id: str | None
     step_number: int
     done: bool
-    history: list[dict]
+    history: list[Any]
     total_score: float

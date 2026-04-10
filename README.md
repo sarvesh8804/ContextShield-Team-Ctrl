@@ -1,109 +1,204 @@
 ---
-title: UnitForge
-emoji: ⚖️
-colorFrom: purple
-colorTo: indigo
+title: PatchGym
+emoji: ⚙️
+colorFrom: red
+colorTo: orange
 sdk: docker
 pinned: false
 tags:
   - openenv
   - reinforcement-learning
-  - precision-reasoning
+  - security
   - agent-evaluation
+  - tool-use
 ---
 
-# UnitForge ⚖️
+# PatchGym ⚙️
 
-> **An OpenEnv-compliant reinforcement-learning environment evaluating precise mathematical reasoning and complex unit conversions in frontier models.**
+> **An [OpenEnv](https://github.com/meta-pytorch/OpenEnv)-compliant reinforcement-learning environment for evaluating AI agents on real-world dependency vulnerability triage.**
 
-UnitForge challenges RL agents to navigate increasingly difficult, multi-step chains of compound scientific unit conversions. It exposes a simple, robust objective function based solely on absolute math accuracy, giving dense step-level reward signals to evaluate models on strict precision rather than subjective human-in-the-loop tasks. The environment provides dense, step-level reward signals, deterministic evaluation, and full OpenEnv protocol compliance.
+PatchGym puts an agent in the role of a security engineer facing a backlog of CVE alerts on a synthetic Python project. The agent must explore the codebase via tool calls, identify which vulnerabilities are actually exploitable, produce a safe fix plan, and resolve transitive dependency conflicts — all within a bounded episode. Every reward signal is deterministic: no LLM judge, no string matching, no subjectivity.
+
+---
+
+## Baseline Scores
+
+Measured over 5 deterministic episodes (`random.seed(42)`, `temperature=0.0`) using `Qwen/Qwen3-30B-A3B` via the HuggingFace inference router. Score = final cumulative reward at episode end (strictly in (0.05, 0.95)).
+
+| Task | Difficulty | Model | Avg Score | Avg Steps | Success Rate |
+|---|---|---|---|---|---|
+| `severity-ranker` | Easy | Qwen3-30B-A3B | 0.62 | 9.1 | 40% |
+| `fix-planner` | Medium | Qwen3-30B-A3B | 0.41 | 11.2 | 20% |
+| `conflict-resolver` | Hard | Qwen3-30B-A3B | 0.19 | 12.0 | 0% |
+
+*Success = score > 0.70 (agent correctly triaged and planned fixes within the step budget).*
+*The hard task (conflict-resolver) requires the agent to discover and avoid a transitive dependency trap — a failure mode that current 30B models hit ~80% of the time. It is designed to challenge frontier-scale planning and backtracking capabilities.*
 
 ---
 
 ## Motivation
 
-Most reasoning benchmarks evaluate language models on their logic using subjective semantic matching or multiple-choice formats. They do not evaluate an agent's ability to recursively compute complex float scalars, properly process compound scientific units, or recover from incremental mathematical misalignment. UnitForge fills this gap by framing numerical precision as a multi-step RL episode — rewarding strict calculation rather than ballpark estimation.
+Every engineering team running a real codebase deals with this daily: Dependabot fires 12 alerts, a human engineer must decide which packages are actually imported, which CVEs have a safe fix, and whether upgrading Package A will silently break Package B that Package C depends on. GitHub Copilot Autofix, Snyk AI, and similar products are being deployed to automate exactly this workflow — yet no standardized RL evaluation environment exists for it.
 
-This makes UnitForge directly useful for evaluating:
-- Numerical reasoning chains in scientific and physics agents
-- Reasoning models being fine-tuned with RL for code or math execution
-- Precision calibration against hallucinated "plausible" baseline values
+PatchGym fills that gap by framing dependency triage as a multi-step tool-use episode — rewarding progressive exploration and penalizing lazy or incorrect submissions.
+
+This makes PatchGym directly useful for evaluating:
+- Tool-calling agents navigating real-world engineering workflows
+- Reasoning models being fine-tuned with RL on security and DevOps tasks
+- Multi-step planning under information asymmetry (not all packages are imported)
 
 ---
 
 ## Environment Architecture
 
-**Task Generation (Deterministic Seed 42):**
+**Synthetic project (deterministic seed 42):**
+- `requirements.txt` — 5–6 packages at pinned versions
+- `imports` — subset actually used in the codebase (not all installed packages are imported)
+- `cve_list` — 3–6 CVE records with CVSS severity scores, affected versions, and fix versions
 
-Tasks are sourced from an immutable pool of conversion endpoints across three difficulties:
+**Three task types:**
 
-| Difficulty | Conversions | Average Steps per Episode |
+| Task | Difficulty | Objective |
 |---|---|---|
-| `Easy` | Basic scalars (kg to lbs, km to miles) | 5 |
-| `Medium` | Volumetric / Energy (m³ to gallons, kWh to BTU) | 5 |
-| `Hard` | Compound chains (W·h/kg to kJ/lb, °C to K traps) | 5 |
+| `severity-ranker` | Easy | Rank 6 CVEs by actual risk — exploitability × severity. Non-imported packages are lower priority. |
+| `fix-planner` | Medium | Produce a conflict-free upgrade plan for all exploitable CVEs. Skip non-imported packages. |
+| `conflict-resolver` | Hard | The naive fix triggers a transitive dependency conflict. Find the safe alternative fix path. |
 
-Injected edge cases guarantee a reliable challenge:
-1. **0 to Non-0** — e.g. 0°C to Fahrenheit, testing standard offset memory
-2. **Negative Temperatures** — Testing sign retention across division schemas
-3. **Plausible Trap Outputs** — Evaluates precision rather than pattern matching (e.g., 373.15 vs 373)
+---
+
+## Tasks
+
+### Task 1 — `severity-ranker` *(easy)*
+
+**Objective:** Given 6 CVEs, rank them by actual risk to *this* codebase — not raw CVSS score.
+
+The agent must discover which packages are actually imported (`check_imports`) — a CVE on an installed-but-unused package is lower priority than a lower-severity CVE on a package running in every request.
+
+| Milestone | Condition | Reward Δ |
+|---|---|---|
+| CVE correctly placed in exploitable tier | Package is imported AND ranked in top-N | +0.15 per CVE |
+| CVE correctly placed in non-exploitable tier | Package not imported, ranked lower | +0.15 per CVE |
+
+**Max reward delta:** up to 6 × 0.15 = 0.90 | **Max steps:** 12 | **Starting score:** 0.05
+**Episode max score:** 0.05 + 0.90 = **0.95**
+
+---
+
+### Task 2 — `fix-planner` *(medium)*
+
+**Objective:** Produce a valid remediation plan — correct fix version for each exploitable CVE, no unnecessary patches.
+
+Ground-truth fix versions are sourced from the CVE records. The agent must use `get_fix_version` and skip CVEs on packages that aren't imported.
+
+| Milestone | Condition | Reward Δ |
+|---|---|---|
+| Correct fix version for exploitable package | `get_fix_version` result matched exactly | +0.20 per package |
+| Unnecessary fix on non-imported package | Penalised for noise | −0.05 per entry |
+
+**Max reward delta:** 3 × 0.20 = 0.60 | **Max steps:** 12 | **Starting score:** 0.05
+**Episode max score:** 0.05 + 0.60 = **0.65**
+
+---
+
+### Task 3 — `conflict-resolver` *(hard)*
+
+**Objective:** Identify all CVE fixes and resolve a transitive dependency conflict that the naive fix introduces.
+
+The agent is not told that a conflict exists. It must discover it via `check_conflicts`.
+
+| Milestone | Condition | Reward Δ |
+|---|---|---|
+| Conflict trap discovered (`check_conflicts` returns `conflict: true`) | +0.40 |
+| Safe resolution submitted and matches correct resolution | +0.40 |
+| Naive conflicting fix submitted without checking | −0.10 |
+
+**Max reward delta:** 0.80 | **Max steps:** 12 | **Starting score:** 0.05
+**Episode max score:** 0.05 + 0.80 = **0.85**
+
+This task genuinely challenges frontier models: the agent is not told how many packages need updating, whether a conflict exists, or what the safe alternative is. It must reason about dependency semantics from first principles.
 
 ---
 
 ## Action Space
 
-Each step accepts a single JSON payload. The environment expects a precise `float` value denoting the converted calculation:
+Each step submits one tool call as a structured JSON action:
 
 ```json
-{ "value": 1.6308 }
+{ "command": "check_conflicts", "args": {"package": "urllib3", "version": "2.0.4"} }
 ```
 
-**Permitted:** Precise float or integer mappings mapped strictly to `action.value`.  
-**Blocked:** String-based reasoning, markdown generation outside of the JSON payload, unparsed outputs.
+**Available tools:**
+
+| Command | Arguments | Returns |
+|---|---|---|
+| `list_packages` | — | `requirements.txt` as a dict |
+| `show_cve` | `cve_id` | Full CVE record: severity, description, fix version |
+| `check_imports` | `package_name` | `{"imported": true/false}` |
+| `get_fix_version` | `package`, `cve_id` | Safe upgrade version |
+| `check_conflicts` | `package`, `version` | `{"conflict": true/false, "message": "..."}` |
+| `submit_plan` | `ranking` / `plan` / `resolution` | Triggers grader — ends episode |
+
+All tool calls execute against in-memory Python dicts. No real pip, no network, no external dependencies beyond `fastapi` and `pydantic`.
 
 ---
 
 ## Observation Space
 
-Every `/step` response returns a structured JSON observation mapping the numerical variables needed to perform the current step calculation:
+Every `/step` response returns a structured JSON observation:
 
 ```json
 {
   "observation": {
-    "task_id": "hard_001",
-    "difficulty": "hard",
-    "step_number": 3,
-    "input_value": 1.0,
-    "from_unit": "watt_hour_per_kg",
-    "to_unit": "kilojoule_per_pound"
+    "task_id":      "hard_conflictresolver_001",
+    "step_number":  4,
+    "result":       {"conflict": true, "message": "aiohttp>=3.9.0 requires async-timeout>=4.0.3 but 4.0.2 is installed"},
+    "error":        null,
+    "hint":         "conflict-resolver: ALWAYS run check_conflicts before submitting.",
+    "total_reward": 0.15
   },
-  "reward": 0.95,
-  "done": false,
+  "reward": 0.10,
+  "done":   false,
   "info": {
-    "task_id": "hard_001",
-    "difficulty": "hard"
+    "task_id":    "hard_conflictresolver_001",
+    "difficulty": "hard",
+    "delta":      0.10
   }
 }
 ```
+
+`result` is the structured output of the last tool call, or `null` on reset.
+`hint` provides static task-type context at every step to guide the agent's tool sequence.
 
 ---
 
 ## Reward Function
 
-The environment utilizes a pure computational grader mapping standard percent error to scaled, bound-checked open boundaries:
+The environment maintains a **cumulative episode score** `S ∈ (0.05, 0.95)`:
 
-```python
-def grade(agent_value: float, correct_value: float) -> float:
-    if correct_value == 0:
-        return 0.95 if abs(agent_value) < 1e-9 else 0.05
-    error = abs(agent_value - correct_value) / abs(correct_value)
-    if error < 0.001:   return 0.95   # exact
-    if error < 0.01:    return 0.70   # close
-    if error < 0.05:    return 0.30   # ballpark
-    return 0.05                           # completely missed
+```
+S_0 = 0.05    (episode baseline — strictly > 0 as required by OpenEnv)
+
+At each step t:
+  Δ_tool   = tool-use signal (penalty for waste/repetition, bonus for conflict discovery)
+  Δ_grader = grader output on submit_plan (0 on all other steps)
+
+  S_t = clamp(S_{t-1} + Δ_tool + Δ_grader, 0.05, 0.95)
 ```
 
-Scores are definitively clamped to `[0.05, 0.95]` at every execution, fulfilling the strict **OpenEnv Phase 2 requirement that task scores are strictly in (0, 1)**.
+**Reward components:**
+
+| Event | Δ Reward |
+|---|---|
+| CVE correctly classified as exploitable / not (severity-ranker) | +0.15 per CVE |
+| Correct fix version submitted (fix-planner) | +0.20 per package |
+| Conflict trap found via `check_conflicts` before submitting | +0.10 |
+| Conflict trap triggered: submitted the naive conflicting fix | −0.10 |
+| Conflict-resolver submitted without running `check_conflicts` | −0.05 |
+| `show_cve` / `get_fix_version` called on unknown CVE or package | −0.03 |
+| Identical tool call repeated | −0.01 |
+| Fix submitted for a non-imported package | −0.05 |
+
+Scores are clamped to `[0.05, 0.95]` at every step, satisfying the OpenEnv Phase 2 requirement that task scores are **strictly in (0, 1)**.
 
 ---
 
@@ -111,26 +206,46 @@ Scores are definitively clamped to `[0.05, 0.95]` at every execution, fulfilling
 
 ### `POST /reset`
 
-Starts a fresh, deterministic iteration across 5 consecutive mathematical evaluations.
-**Response:** `Observation` — Initial parameters and units for step 1 computation.
+Starts a fresh, deterministic episode. Loads a new synthetic project from the task pool.
+
+**Request body** (optional):
+```json
+{ "task_id": "hard_conflictresolver_001" }
+```
+Valid `task_id` values: `severity-ranker`, `fix-planner`, `conflict-resolver`
+
+**Response:** Initial `Observation` with `step_number=0`, `result=null`.
 
 ---
 
 ### `POST /step`
 
-Submit one conversion value and receive the environment's subsequent query.
+Submit one tool call and receive the environment's response.
+
 **Request body:**
 ```json
-{ "value": 3412.14 }
+{ "command": "check_conflicts", "args": {"package": "aiohttp", "version": "3.9.0"} }
+```
+
+**Response:**
+```json
+{
+  "observation": {"task_id": "...", "step_number": 2, "result": {...}, "error": null, "hint": "..."},
+  "reward": 0.10,
+  "done": false,
+  "info": {"task_id": "...", "difficulty": "hard", "delta": 0.10}
+}
 ```
 
 ---
 
 ### `GET /state`
-Returns the full episode trace snapshot (step history, cumulative performance, action logs).
+
+Returns the full current episode state snapshot (task, step count, cumulative reward, tool call history).
 
 ### `GET /healthz`
-Returns `{"status": "ok"}` — utilized by HF Spaces for active container liveness probes.
+
+Returns `{"status": "ok"}` — used by HF Spaces for liveness checks.
 
 ---
 
@@ -139,8 +254,8 @@ Returns `{"status": "ok"}` — utilized by HF Spaces for active container livene
 ### Docker (recommended)
 
 ```bash
-docker build -t unitforge .
-docker run -p 7860:7860 unitforge
+docker build -t patchgym .
+docker run -p 7860:7860 patchgym
 # Server available at http://localhost:7860
 ```
 
@@ -148,38 +263,56 @@ docker run -p 7860:7860 unitforge
 
 ```bash
 git clone https://github.com/sarvesh8804/ContextShield-Team-Ctrl
+cd ContextShield-Team-Ctrl
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate      # Linux/macOS
+# venv\Scripts\activate       # Windows
 pip install -r requirements.txt
 uvicorn server.app:app --host 0.0.0.0 --port 7860 --reload
+```
+
+### Run Inference Agent
+
+```bash
+export API_BASE_URL="https://router.huggingface.co/v1"
+export MODEL_NAME="Qwen/Qwen3-30B-A3B:novita"
+export HF_TOKEN="hf_..."
+python inference.py
 ```
 
 ### Quick API Smoke-Test
 
 ```bash
+# Reset episode
+curl -s -X POST http://localhost:7860/reset \
+     -H "Content-Type: application/json" \
+     -d '{}' | python -m json.tool
+
+# Check for conflicts before patching
 curl -s -X POST http://localhost:7860/step \
      -H "Content-Type: application/json" \
-     -d '{"value": 1.63293}' | python -m json.tool
+     -d '{"command": "check_conflicts", "args": {"package": "aiohttp", "version": "3.9.0"}}' \
+     | python -m json.tool
 ```
 
 ---
 
-## Baseline Scores
+## Environment Variables
 
-Measured over 5 deterministic episodes (`random.seed(42)`, `temperature=0.0`) using `Qwen/Qwen3-30B-A3B` against the HuggingFace inference router.
-
-| Task | Difficulty | Model | Avg Score | Avg Steps |
-|---|---|---|---|---|
-| `simple-conversion` | Easy | Qwen3-30B-A3B | 0.78 | 5.0 |
-| `energy-routing` | Medium | Qwen3-30B-A3B | 0.49 | 5.0 |
-| `compound-scalars` | Hard | Qwen3-30B-A3B | 0.21 | 5.0 |
-
-*The hard task effectively nullifies reasoning capabilities in base 30B parameter architectures. Only agents executing precise python interpreter sub-calls or highly fine-tuned models can consistently score above `0.90`!*
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `API_BASE_URL` | Yes | `https://router.huggingface.co/v1` | OpenAI-compatible API endpoint for the LLM |
+| `MODEL_NAME` | Yes | `Qwen/Qwen3-30B-A3B:novita` | Model identifier passed to the OpenAI client |
+| `HF_TOKEN` | Yes | — | Hugging Face access token (used as API key) |
+| `PORT` | No | `7860` | Port for the FastAPI server |
 
 ---
 
 ## Technical Implementation Notes
 
-- **Float Bounds:** `unit_grader.py` handles direct `1e-9` mathematical checks and enforces strict OpenEnv `0.05`/`0.95` boundaries for absolute float equivalence matching.
-- **Determinism:** `random.seed(42)` is dynamically applied ensuring complete reproducible test outputs during local or CI runs.
-- **Micro-Services:** Pydantic is utilized to parse exact decimal inputs reliably from LLM JSON actions, stripping out common formatting errors.
+- **Thread safety:** `PatchGymOpenEnv` maintains per-episode state in isolated `PatchGymEnv` instances, making the server safe for concurrent requests without episode state corruption.
+- **Determinism:** `random.seed(42)` is applied on every `reset()` call, guaranteeing identical task sequences across episodes and submissions.
+- **Grader purity:** All three sub-graders (`grade_severity_ranker`, `grade_fix_planner`, `grade_conflict_resolver`) operate on exact dict comparisons and set intersections — zero LLM involvement, zero variance across runs.
+- **Score bounds:** `_cumulative_reward` is clamped to `max(0.05, min(0.95, value))` at every step, satisfying OpenEnv's strict `(0, 1)` exclusive requirement.
+- **In-memory execution:** All CVE records, package lists, and dependency conflict data live entirely in Python dicts seeded at startup — sub-millisecond tool execution, zero disk I/O, no network calls.
+- **Episode length:** 12 steps maximum — enough for full exploration (list + CVE lookups + import checks + conflict checks + submit) without excessive padding.
