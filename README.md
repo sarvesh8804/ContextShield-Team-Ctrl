@@ -312,8 +312,8 @@ docker run -p 7860:7860 patchgym
 ### Local Development
 
 ```bash
-git clone https://github.com/sarvesh8804/ContextShield-Team-Ctrl
-cd ContextShield-Team-Ctrl
+git clone https://github.com/sarvesh8804/PatchGym-Team-Ctrl
+cd PatchGym-Team-Ctrl
 python -m venv venv
 source venv/bin/activate      # Linux/macOS
 # venv\Scripts\activate       # Windows
