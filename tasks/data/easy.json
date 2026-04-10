@@ -2,56 +2,41 @@
   {
     "task_id": "easy_001",
     "difficulty": "easy",
-    "content": "Buy cheap Rolex watches, click here now!!!",
-    "platform": "marketplace",
-    "region": "US",
-    "user_history": {"prior_violations": 0, "account_age_days": 10},
-    "ground_truth": "remove",
-    "context_keywords": [],
-    "explanation": "Obvious spam/counterfeit goods advertisement."
+    "input_value": 1.0,
+    "from_unit": "kg",
+    "to_unit": "lbs",
+    "correct_answer": 2.20462
   },
   {
     "task_id": "easy_002",
     "difficulty": "easy",
-    "content": "Here is my sourdough bread recipe, hope you enjoy!",
-    "platform": "social_media",
-    "region": "US",
-    "user_history": {"prior_violations": 0, "account_age_days": 730},
-    "ground_truth": "allow",
-    "context_keywords": [],
-    "explanation": "Benign recipe post with no policy violations."
+    "input_value": 0.0,
+    "from_unit": "celsius",
+    "to_unit": "fahrenheit",
+    "correct_answer": 32.0
   },
   {
     "task_id": "easy_003",
     "difficulty": "easy",
-    "content": "CLICK HERE TO WIN $1,000,000!!! You have been selected! Claim your prize NOW!!!",
-    "platform": "messaging",
-    "region": "EU",
-    "user_history": {"prior_violations": 2, "account_age_days": 5},
-    "ground_truth": "remove",
-    "context_keywords": [],
-    "explanation": "Classic phishing/scam message with obvious spam indicators."
+    "input_value": 5.0,
+    "from_unit": "km",
+    "to_unit": "miles",
+    "correct_answer": 3.10686
   },
   {
     "task_id": "easy_004",
     "difficulty": "easy",
-    "content": "Looking to sell my old bicycle, barely used, great condition. DM for price.",
-    "platform": "marketplace",
-    "region": "EU",
-    "user_history": {"prior_violations": 0, "account_age_days": 400},
-    "ground_truth": "allow",
-    "context_keywords": [],
-    "explanation": "Legitimate second-hand goods listing with no policy violations."
+    "input_value": 10.0,
+    "from_unit": "cm",
+    "to_unit": "inches",
+    "correct_answer": 3.93701
   },
   {
     "task_id": "easy_005",
     "difficulty": "easy",
-    "content": "I hate all people from that country, they should be banned from this platform forever.",
-    "platform": "social_media",
-    "region": "APAC",
-    "user_history": {"prior_violations": 1, "account_age_days": 200},
-    "ground_truth": "remove",
-    "context_keywords": [],
-    "explanation": "Clear hate speech targeting a national group, violates community standards."
+    "input_value": 1.0,
+    "from_unit": "liter",
+    "to_unit": "milliliter",
+    "correct_answer": 1000.0
   }
 ]

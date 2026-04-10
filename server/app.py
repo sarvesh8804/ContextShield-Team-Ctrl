@@ -42,6 +42,11 @@ def root() -> str:
 </html>"""
 
 
+@app.get("/healthz")
+def healthz() -> dict:
+    return {"status": "ok"}
+
+
 def main() -> None:
     import uvicorn
 

@@ -2,89 +2,41 @@
   {
     "task_id": "hard_001",
     "difficulty": "hard",
-    "content": "The protest march tomorrow starts at 9am at the central square.",
-    "platform": "messaging",
-    "region": "APAC",
-    "user_history": {"prior_violations": 3, "account_age_days": 15, "flagged_network": true},
-    "ground_truth": "escalate",
-    "context_keywords": ["APAC", "user history", "flagged network", "messaging"],
-    "explanation": "Coordination content in APAC messaging context with high-risk user history requires human review."
+    "input_value": 1.0,
+    "from_unit": "watt_hour_per_kg",
+    "to_unit": "kilojoule_per_pound",
+    "correct_answer": 1.63293
   },
   {
     "task_id": "hard_002",
     "difficulty": "hard",
-    "content": "My grandfather fought in the war and I'm proud of our family's military history.",
-    "platform": "social_media",
-    "region": "APAC",
-    "user_history": {"prior_violations": 0, "account_age_days": 1200, "flagged_network": false},
-    "ground_truth": "allow",
-    "context_keywords": ["APAC", "user history", "cultural context", "social_media"],
-    "explanation": "Personal family history post; benign in isolation. Clean user history and long account age support allow decision despite sensitive regional context."
+    "input_value": 100.0,
+    "from_unit": "celsius",
+    "to_unit": "kelvin",
+    "correct_answer": 373.15
   },
   {
     "task_id": "hard_003",
     "difficulty": "hard",
-    "content": "Special discount on VPN services — bypass all regional restrictions today!",
-    "platform": "marketplace",
-    "region": "APAC",
-    "user_history": {"prior_violations": 1, "account_age_days": 30, "flagged_network": true},
-    "ground_truth": "escalate",
-    "context_keywords": ["APAC", "user history", "flagged network", "circumvention", "marketplace"],
-    "explanation": "VPN circumvention tools in APAC with a flagged-network seller and prior violations require human review due to legal and policy complexity."
+    "input_value": 1.0,
+    "from_unit": "slug",
+    "to_unit": "grams",
+    "correct_answer": 14593.9
   },
   {
     "task_id": "hard_004",
     "difficulty": "hard",
-    "content": "Reminder: our weekly community prayer meeting is this Friday evening at the usual place.",
-    "platform": "messaging",
-    "region": "EU",
-    "user_history": {"prior_violations": 2, "account_age_days": 20, "flagged_network": true},
-    "ground_truth": "escalate",
-    "context_keywords": ["EU", "user history", "flagged network", "messaging", "coordination"],
-    "explanation": "Seemingly benign coordination message, but the sender's flagged network status and prior violations in EU messaging context warrant human review before allowing."
+    "input_value": -40.0,
+    "from_unit": "celsius",
+    "to_unit": "fahrenheit",
+    "correct_answer": -40.0
   },
   {
     "task_id": "hard_005",
     "difficulty": "hard",
-    "content": "Selling homemade firearms cleaning kits, all parts legal and compliant.",
-    "platform": "marketplace",
-    "region": "US",
-    "user_history": {"prior_violations": 1, "account_age_days": 90, "flagged_network": false},
-    "ground_truth": "escalate",
-    "context_keywords": ["US", "user history", "firearms", "marketplace", "legal compliance"],
-    "explanation": "Firearms-adjacent listings in the US require human review to verify legal compliance, even when claimed to be legal, especially with a prior violation on record."
-  },
-  {
-    "task_id": "hard_006",
-    "difficulty": "hard",
-    "content": "I've been documenting the side effects of this medication for 6 months. Here's my data.",
-    "platform": "social_media",
-    "region": "EU",
-    "user_history": {"prior_violations": 0, "account_age_days": 2100, "flagged_network": false, "verified_professional": false},
-    "ground_truth": "allow",
-    "context_keywords": ["EU", "user history", "health", "social_media", "patient experience"],
-    "explanation": "Personal health documentation by a long-standing, clean-history user in the EU. Patient experience sharing is protected under EU health information norms. No professional claim is made, so no misinformation risk. Allow."
-  },
-  {
-    "task_id": "hard_007",
-    "difficulty": "hard",
-    "content": "Flash sale: 90% off luxury watches. Only 3 left. Buy now before they're gone!",
-    "platform": "marketplace",
-    "region": "US",
-    "user_history": {"prior_violations": 0, "account_age_days": 3, "flagged_network": false},
-    "ground_truth": "escalate",
-    "context_keywords": ["US", "user history", "new account", "marketplace", "urgency tactics"],
-    "explanation": "Urgency-based luxury goods listing from a 3-day-old account with no violations yet. The combination of extreme discount, scarcity pressure, and brand-new account is a strong counterfeit/fraud signal requiring human review — even though no explicit policy violation is present in the text."
-  },
-  {
-    "task_id": "hard_008",
-    "difficulty": "hard",
-    "content": "Our group helps people find safe routes across the border. DM for details.",
-    "platform": "messaging",
-    "region": "US",
-    "user_history": {"prior_violations": 0, "account_age_days": 45, "flagged_network": false},
-    "ground_truth": "escalate",
-    "context_keywords": ["US", "user history", "messaging", "implicit intent", "border crossing"],
-    "explanation": "Ambiguous content that could represent humanitarian aid (legal) or human smuggling facilitation (illegal). The implicit intent, private messaging channel, and border-crossing framing require human review regardless of clean user history. This is a classic multi-signal conflict: safe text + high-risk implicit meaning."
+    "input_value": 1.0,
+    "from_unit": "btu_per_pound_celsius",
+    "to_unit": "joule_per_kg_kelvin",
+    "correct_answer": 4186.8
   }
 ]
