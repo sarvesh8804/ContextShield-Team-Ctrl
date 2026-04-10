@@ -23,13 +23,13 @@ PatchGym puts an agent in the role of a security engineer facing a backlog of CV
 
 ## Baseline Scores
 
-Measured over 5 deterministic episodes (`random.seed(42)`, `temperature=0.2`) using `Qwen/Qwen3-30B-A3B` via the HuggingFace inference router. Score = final cumulative reward at episode end (strictly in (0.05, 0.95)).
+Measured over 5 deterministic episodes (`random.seed(42)`, `temperature=0.0`) using local zero-shot inference (no RL fine-tuning). Score = final cumulative reward at episode end (strictly in (0.05, 0.95)).
 
 | Task | Difficulty | Model | Avg Score | Avg Steps | Success Rate |
 |---|---|---|---|---|---|
-| `severity-ranker` | Easy | Qwen3-30B-A3B | 0.45 | 7.4 | 40% |
-| `fix-planner` | Medium | Qwen3-30B-A3B | 0.35 | 8.2 | 20% |
-| `conflict-resolver` | Hard | Qwen3-30B-A3B | 0.05 | 6.0 | 0% |
+| `severity-ranker` | Easy | Mistral-7B-Instruct | 0.35 | 5.2 | 0% |
+| `fix-planner` | Medium | Mistral-7B-Instruct | 0.35 | 4.8 | 0% |
+| `conflict-resolver` | Hard | Mistral-7B-Instruct | 0.05 | 4.0 | 0% |
 
 *Success = score > 0.70 (meaningful majority of task milestones solved).*  
 *The hard task (conflict-resolver) requires reasoning about transitive dependency traps that current baseline models lack; it is intended to challenge frontier-scale RL models.*
