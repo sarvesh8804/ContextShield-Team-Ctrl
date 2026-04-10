@@ -1,29 +1,6 @@
-name: patch-gym
-version: "1.0.0"
-entrypoint: env.openenv_adapter:PatchGymOpenEnv
-description: >
-  Dependency vulnerability triage environment.
-  Agents use tool calls to assess CVEs, plan safe fixes, and resolve
-  transitive dependency conflicts — all against in-memory synthetic projects.
-
-observation_space:
-  type: object
-  properties:
-    task_id: {type: string}
-    step_number: {type: integer}
-    result: {type: object}
-    error: {type: string}
-    hint: {type: string}
-    total_reward: {type: number}
-
-action_space:
-  type: object
-  properties:
-    command:
-      type: string
-      enum: [list_packages, show_cve, check_imports, get_fix_version, check_conflicts, submit_plan]
-    args: {type: object}
-
-reward_range: [0.05, 0.95]
-episode_steps: 12
-tasks: [severity-ranker, fix-planner, conflict-resolver]
+spec_version: 1
+name: patchgym
+type: space
+runtime: fastapi
+app: server.app:app
+port: 7860
