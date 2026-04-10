@@ -65,7 +65,7 @@ The agent must use `check_imports` and `show_cve` to deduce the critical path an
 
 ## Environment Architecture
 
-![PatchGym Architecture](Gemini_Generated_Image_dno2pgdno2pgdno2.png)
+
 
 **Synthetic project (deterministic seed 42):**
 - `requirements.txt` — 5–6 packages at pinned versions
