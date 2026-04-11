@@ -17,7 +17,7 @@ tags:
 
 > **An [OpenEnv](https://github.com/meta-pytorch/OpenEnv)-compliant reinforcement-learning environment for evaluating AI agents on real-world dependency vulnerability triage.**
 
-PatchGym puts an agent in the role of a security engineer facing a backlog of CVE alerts on a synthetic Python project. The agent must explore the codebase via tool calls, identify which vulnerabilities are actually exploitable, produce a safe fix plan, and resolve transitive dependency conflicts — all within a bounded episode. Every reward signal is deterministic: no LLM judge, no string matching, no subjectivity.
+PatchGym transforms an agent in the role of a security engineer facing a backlog of CVE alerts on a synthetic Python project. The agent must explore the codebase via tool calls, identify which vulnerabilities are actually exploitable, produce a safe fix plan, and resolve transitive dependency conflicts — all within a bounded episode. Every reward signal is deterministic: no LLM judge, no string matching, no subjectivity.
 
 ---
 
