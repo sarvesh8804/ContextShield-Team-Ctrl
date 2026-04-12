@@ -92,10 +92,9 @@ The agent must discover which packages are actually imported (`check_imports`) �
 
 | Milestone | Condition | Reward Δ |
 |---|---|---|
-| CVE correctly placed in exploitable tier | Package is imported AND ranked in top-N | +0.30 per CVE |
-| CVE correctly placed in non-exploitable tier | Package not imported, ranked lower | +0.30 per CVE |
+| Exploitable CVE correctly ranked | Package is imported AND ranked in top-N | +0.30 per CVE |
 
-**Max reward delta:** up to 3 × 0.30 = 0.90 | **Max steps:** 12 | **Starting score:** 0.05
+**Max reward delta:** 3 × 0.30 = 0.90 | **Max steps:** 12 | **Starting score:** 0.05
 **Episode max score:** 0.05 + 0.90 = **0.95**
 
 ---
@@ -124,12 +123,14 @@ The agent is not told that a conflict exists. It must discover it via `check_con
 
 | Milestone | Condition | Reward Δ |
 |---|---|---|
-| Conflict trap discovered (`check_conflicts` returns `conflict: true`) | +0.40 |
-| Safe resolution submitted and matches correct resolution | +0.40 |
-| Naive conflicting fix submitted without checking | −0.10 |
+| Conflict trap discovered | `check_conflicts` returns `conflict: true` | +0.10 |
+| Naive trap avoided | Submitted fix does not use the naive conflicting version | +0.40 |
+| Safe resolution matched | Submitted fix matches the exact correct resolution | +0.40 |
+| Naive conflicting fix | Submitted without resolving conflict | −0.10 |
+| Missed validation | Submitted without running `check_conflicts` | −0.05 |
 
-**Max reward delta:** 0.80 | **Max steps:** 12 | **Starting score:** 0.05
-**Episode max score:** 0.05 + 0.80 = **0.85**
+**Max reward delta:** 0.10 + 0.80 = 0.90 | **Max steps:** 12 | **Starting score:** 0.05
+**Episode max score:** 0.05 + 0.90 = **0.95**
 
 This task genuinely challenges frontier models: the agent is not told how many packages need updating, whether a conflict exists, or what the safe alternative is. It must reason about dependency semantics from first principles.
 
